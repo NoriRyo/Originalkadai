@@ -72,8 +72,6 @@ void Field::init()
 
 void Field::update()
 {
-
-
 	int Up = 0;
 	int Do = 0;
 	int Ri = 0;
@@ -99,8 +97,6 @@ void Field::update()
 			m_EnemyFrameCount = 0;
 		}
 	}
-
-
 
 	// “®‚­“G‚ª•Ç‚É‚Ô‚Â‚©‚Á‚½‚çˆÚ“®‚·‚é•ûŒü‚ğ”½“]‚·‚é
 	// ->
@@ -245,6 +241,7 @@ void Field::update()
 
 
 			
+
 			// “G‚ÆƒvƒŒƒCƒ„[
 			if (m_playerX == m_MovingEnemyX || m_playerY == m_MovingEnemyY)
 			{
