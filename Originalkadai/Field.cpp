@@ -4,10 +4,10 @@
 
 namespace
 {
-	constexpr int kEmpty = 0;	// 空っぽ
+	constexpr int kEmpty = 0;		// 空っぽ
 	constexpr int kMovingBlock = 1;	// 動かせるブロック
 	constexpr int kMovingEnemy = 2;	// 敵
-	constexpr int kPlayer = 3;	// プレイヤー
+	constexpr int kPlayer = 3;		// プレイヤー
 	constexpr int kRightWall = 6;	// 右壁
 	constexpr int kLeftWall = 7;	// 左壁
 	constexpr int kUpWall = 8;		// 上壁
@@ -17,11 +17,11 @@ namespace
 Field::Field() :
 	m_fieldX(200),
 	m_fieldY(64),
-	m_playerX(1),	// プレイヤーの初期位置
+	m_playerX(1),			// プレイヤーの初期位置
 	m_playerY(1),
-	m_MovingEnemyX(3),	// 動く敵の初期位置
+	m_MovingEnemyX(3),		// 動く敵の初期位置
 	m_MovingEnemyY(6),
-	m_MovingBlockX(5),	// ブロックの初期位置
+	m_MovingBlockX(5),		// ブロックの初期位置
 	m_MovingBlockY(4),
 	m_PlayerFrameCount(0),	// プレイヤーのカウント
 	m_EnemyFrameCount(0),	// エネミーのカウント
@@ -36,6 +36,7 @@ Field::Field() :
 
 Field::~Field()
 {
+
 }
 
 void Field::init()
@@ -241,6 +242,7 @@ void Field::update()
 
 
 			
+
 
 			// 敵とプレイヤー
 			if (m_playerX == m_MovingEnemyX || m_playerY == m_MovingEnemyY)
