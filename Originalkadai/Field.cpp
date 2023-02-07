@@ -1,406 +1,504 @@
 #include "Field.h"
 #include "DxLib.h"
 #include "GameMain.h"
+#include "Player.h"
+#include "Game.h"
 
+#define kFieldX (13)
+#define kFieldY (13)
+#define kSize (48)
+#define SPEED (2.0f)
+
+//#define kFieldX (Game::kScreenWidth / kSize)
+//#define kFieldY (Game::kScreenHeight/ kSize)
+
+
+//#define SPEED   (5.0f)   // キャラの移動スピード
+
+ 
+char m_field[kFieldY][kFieldX] =
+{
+	5, 5,5,5, 5,5,5,5, 5,5,5,5, 5,
+
+	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+
+	5, 0,0,0, 0,0,5,5, 0,0,0,0, 5,
+	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+
+	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+
+	5, 5,5,5, 5,5,5,5, 5,5,5,5, 5,
+
+};
 namespace
 {
 	constexpr int kEmpty = 0;		// 空っぽ
 	constexpr int kMovingBlock = 1;	// 動かせるブロック
-	constexpr int kMovingEnemy = 2;	// 敵
+	constexpr int kMovingEnemy = 2;	// 動く敵
 	constexpr int kPlayer = 3;		// プレイヤー
-	constexpr int kRightWall = 6;	// 右壁
-	constexpr int kLeftWall = 7;	// 左壁
-	constexpr int kUpWall = 8;		// 上壁
-	constexpr int kDownWall = 9;	// 下壁
+	constexpr int kShot = 4;		// 弾
+	constexpr int kWall = 5;		// 動かせない石
 }
 
 Field::Field() :
-	m_fieldX(200),
-	m_fieldY(64),
-	m_playerX(1),			// プレイヤーの初期位置
-	m_playerY(1),
-	m_MovingEnemyX(3),		// 動く敵の初期位置
-	m_MovingEnemyY(6),
-	m_MovingBlockX(5),		// ブロックの初期位置
-	m_MovingBlockY(4),
-	m_PlayerFrameCount(0),	// プレイヤーのカウント
-	m_EnemyFrameCount(0),	// エネミーのカウント
-	m_ShotFrameCount(0),	// ショットのカウント
 
-	m_PlayerWaitingTime(8),	// プレイヤー待機時間
-	m_EnemyWaitingTime(8)	// エネミー待機時間
+	m_fieldX(300),
+	m_fieldY(64)
+	//m_MovingEnemyX(3),		// 動く敵の初期位置
+	//m_MovingEnemyY(6),
+	//m_MovingBlockY(4),
+	//m_ShotFrameCount(0),	// ショット  のカウント
+
+	//m_PlayerWaitingTime(8),	// プレイヤー待機時間
+	//m_EnemyWaitingTime(8)	// エネミー  待機時間
 {
-	m_shotX = m_MovingEnemyX;	// 球の初期位置
-	m_shotY = m_MovingEnemyY;
+	//m_shotX = m_MovingEnemyX;	// 球の初期位置
+	//m_shotY = m_MovingEnemyY;
+	m_field[5][5] = kMovingBlock;
+
 }
 
 Field::~Field()
 {
-
+	
 }
 
 void Field::init()
 {
-	for (int x = 0; x < kFieldX; x++)
-	{
-		for (int y = 0; y < kFieldY; y++)
-		{
-			// 盤面に何もおかれていない状態にする
-			m_field[y][x] = kEmpty;
+	player.init();
 
-			// プレイヤー
-			m_field[m_playerY][m_playerX] = kPlayer;
-
-			// 動く敵
-			m_field[m_MovingEnemyY][m_MovingEnemyX] = kMovingEnemy;
-
-			// 動かせるブロック
-			m_field[m_MovingBlockY][m_MovingBlockX] = kMovingBlock;
-
-			// 右壁
-			m_field[y][15] = kRightWall;
-			// 左壁
-			m_field[y][0] = kLeftWall;
-			// 上壁
-			m_field[0][x] = kUpWall;
-			// 下壁
-			m_field[11][x] = kDownWall;
-
-			
-		}
-	}
 }
 
 void Field::update()
 {
-	int Up = 0;
-	int Do = 0;
-	int Ri = 0;
-	int Le = 0;
 
-	if (enemyRightMove == true)
-	{
-		m_EnemyFrameCount++;
-		if (m_EnemyFrameCount >= m_EnemyWaitingTime)
-		{
-			m_MovingEnemyX ++;
-			
-			m_EnemyFrameCount = 0;
-		}
-	}
-	else
-	{
-		m_EnemyFrameCount++;
-		if (m_EnemyFrameCount >= m_EnemyWaitingTime)
-		{
-			m_MovingEnemyX--;
+	clsDx();
 
-			m_EnemyFrameCount = 0;
-		}
-	}
 
-	// 動く敵が壁にぶつかったら移動する方向を反転する
-	// ->
-	if (enemyRightMove == true)
-	{
-		if (m_MovingEnemyX > kFieldX - 2)
-		{
-			m_MovingEnemyX = kFieldX - 3;
-			enemyRightMove = false;
-		}
-		if (m_MovingEnemyX == m_MovingBlockX && m_MovingEnemyY == m_MovingBlockY)
-		{
-			m_MovingEnemyX = m_MovingBlockX - 1;
-			enemyRightMove = false;
-		}
-	}
-	
-	
-	// <-
-	if (enemyRightMove == false)
-	{
-		if (m_MovingEnemyX < 1)
-		{
-			m_MovingEnemyX = 1;
-			enemyRightMove = true;
-		}
+	//// エネミーの移動
+	//if (enemyRightMove == true)
+	//{
+	//	m_EnemyFrameCount++;
+	//	if (m_EnemyFrameCount >= m_EnemyWaitingTime)
+	//	{
+	//		m_MovingEnemyX ++;
+	//		m_EnemyFrameCount = 0;
+	//	}
+	//}
+	//else
+	//{
+	//	m_EnemyFrameCount++;
+	//	if (m_EnemyFrameCount >= m_EnemyWaitingTime)
+	//	{
+	//		m_MovingEnemyX--;
+	//		m_EnemyFrameCount = 0;
+	//	}
+	//}
+	//// 動く敵が壁にぶつかったら移動する方向を反転する
+	//// ->
+	//if (enemyRightMove == true)
+	//{
+	//	
+	//	if (m_MovingEnemyX > kFieldX - 2)
+	//	{
+	//		m_MovingEnemyX = kFieldX - 3;
+	//		enemyRightMove = false;
+	//	}
+	//	if (m_MovingEnemyX == m_MovingBlockX && m_MovingEnemyY == m_MovingBlockY)
+	//	{
+	//		m_MovingEnemyX = m_MovingBlockX - 1;
+	//		enemyRightMove = false;
+	//	}
+	//				//printfDx("%d\n", );
+	//if (m_field[m_MovingEnemyY][m_MovingEnemyY] == kStone)
+	//{
+	//	printfDx("石にぶつかった\n");
+	//	m_MovingEnemyX = m_MovingEnemyX;
+	//	enemyRightMove = false;
+	//}
+	//
+	//// <-
+	//if (enemyRightMove == false)
+	//{
+	//	if (m_MovingEnemyX < 1)
+	//	{
+	//		m_MovingEnemyX = 1;
+	//		enemyRightMove = true;
+	//	}
+	//	if (m_MovingEnemyX == m_MovingBlockX && m_MovingEnemyY == m_MovingBlockY)
+	//	{
+	//		m_MovingEnemyX = m_MovingBlockX  + 1;
+	//		enemyRightMove = true;
+	//	}
+	//}
 
-		if (m_MovingEnemyX == m_MovingBlockX && m_MovingEnemyY == m_MovingBlockY)
-		{
-			m_MovingEnemyX = m_MovingBlockX  + 1;
-			enemyRightMove = true;
-		}
-	}
+	player.MoveX = 0.0f;
+	player.MoveY = 0.0f;
 
 	if (CheckHitKey(KEY_INPUT_UP))
 	{
-		m_PlayerFrameCount++;
-		if (m_PlayerFrameCount >= m_PlayerWaitingTime)
+		player.MoveY -= SPEED;
+	}
+	else if (CheckHitKey(KEY_INPUT_DOWN))
+	{
+		player.MoveY += SPEED;
+	}
+	else if (CheckHitKey(KEY_INPUT_LEFT))
+	{
+		player.MoveX -= SPEED;
+	}
+	else if (CheckHitKey(KEY_INPUT_RIGHT))
+	{
+		player.MoveX += SPEED;
+	}
+
+	// 半分のサイズを算出
+	player.hsize = player.size * 0.5f;
+
+	// 左下のチェック
+	if (BlockHitCheck(player.x - player.hsize, player.y + player.hsize, player.Dummy, player.MoveY) == 3)
+	{
+		player.y = 0.0f;
+	}
+
+	// 右下のチェック
+	if (BlockHitCheck(player.x + player.hsize, player.y + player.hsize, player.Dummy, player.MoveY) == 3)
+	{
+		player.y = 0.0f;
+	}
+
+	// 左上のチェック
+	if (BlockHitCheck(player.x - player.hsize, player.y - player.hsize, player.Dummy, player.MoveY) == 4)
+	{
+		player.y *= -1.0f;
+	}
+
+	// 右上のチェック
+	if (BlockHitCheck(player.x + player.hsize, player.y - player.hsize, player.Dummy, player.MoveY) == 4)
+	{
+		player.y *= -1.0f;
+	}
+	
+
+
+	// 後に左右移動成分だけでチェック
+	// 左下のチェック
+	BlockHitCheck(player.x - player.hsize, player.y + player.hsize, player.MoveX, player.Dummy);
+
+	// 右下のチェック
+	BlockHitCheck(player.x + player.hsize, player.y + player.hsize, player.MoveX, player.Dummy);
+
+	// 左上のチェック
+	BlockHitCheck(player.x - player.hsize, player.y - player.hsize, player.MoveX, player.Dummy);
+
+	// 右上のチェック
+	BlockHitCheck(player.x + player.hsize, player.y - player.hsize, player.MoveX, player.Dummy);
+
+	// 上下左右移動成分を加算
+	player.x += player.MoveX;
+	player.y += player.MoveY;
+
+	//printfDx("%f\n", player.MoveX);
+	//// 敵とプレイヤー
+	//if (player.x == m_MovingEnemyX || player.y == m_MovingEnemyY)
+	//{
+	//	if (shotFlag == false)
+	//	{
+	//		m_shotX = m_MovingEnemyX;
+	//		m_shotY = m_MovingEnemyY;
+	//	}
+	//	
+	//	shotFlag = true;
+	//	// 敵よりも上にプレイヤーがいた場合
+	//	if (player.y < m_MovingEnemyY)
+	//	{
+	//		m_shotX = m_MovingEnemyX;
+	//		m_ShotFrameCount++;
+	//		if (m_ShotFrameCount >= 300)
+	//		{
+	//			m_shotY--;
+	//			m_ShotFrameCount = 0;
+	//		}	
+	//	}
+	//	// 敵よりも下にプレイヤーがいた場合
+	//	else if (player.y > m_MovingEnemyY)
+	//	{
+	//		//clsDx();
+	//		//printfDx("下にいた\n");
+	//		m_shotX = m_MovingEnemyX;
+	//		m_ShotFrameCount++;
+	//		if (m_ShotFrameCount >= 300)
+	//		{
+	//			m_shotY++;
+	//			m_ShotFrameCount = 0;
+	//		}
+	//	}
+	//	// 敵よりも左にプレイヤーがいた場合
+	//	if (player.x < m_MovingEnemyX)
+	//	{
+	//		//clsDx();
+	//		//printfDx("左にいた\n");
+	//		m_shotY = m_MovingEnemyY;
+	//		m_ShotFrameCount++;
+	//		if (m_ShotFrameCount >= 300)
+	//		{
+	//			m_shotX--;
+	//			m_ShotFrameCount = 0;
+	//		}
+	//	}
+	//	// 敵よりも右にプレイヤーがいた場合
+	//	else if (player.x > m_MovingEnemyX)
+	//	{
+	//		//clsDx();
+	//		//printfDx("右にいた\n");
+	//		m_shotY = m_MovingEnemyY;
+	//		m_ShotFrameCount++;
+	//		if (m_ShotFrameCount >= 300)
+	//		{
+	//			m_shotX++;
+	//			m_ShotFrameCount = 0;
+	//		}
+	//	}
+	//}
+	//// 球がブロックに当たったら、セーフ
+	//if (m_shotY == m_MovingBlockY && m_shotX == m_MovingBlockX)
+	//{
+	//	//printfDx("セーフ\n");
+	//	m_shotX = 0;
+	//	m_shotY = 0;
+	//	shotFlag = false;
+	//	return;
+	//}
+	//// 球がプレイヤーに当たったら、アウト
+	//// プレイヤーは初期位置に戻される
+	//if (m_shotY == player.y && m_shotX == player.x)
+	//{
+	//	//printfDx("ゲームオーバー\n");
+	//	m_shotX = 0;
+	//	m_shotY = 0;
+	//	shotFlag = false;
+	//	player.x = 1;
+	//	player.y = 11;
+	//	return;
+	//}
+	//		
+}
+
+int Field::BlockHitCheck(float X, float Y, float& PlayerMoveX, float& PlayerMoveY)
+{
+	// 移動量を足す
+
+	player.afterX = X + PlayerMoveX;
+	player.afterY = Y + PlayerMoveY;
+	
+	
+
+	// 当たり判定のあるブロックに当たっているかチェック
+	if (GetChipParam(player.afterX, player.afterY) == 1)
+	{
+		// 当たっていたら壁から離す処理を行う
+		// ブロックの上下左右の座標を算出
+		// 左辺の X 座標
+		m_Block.LeftX = (float)((int)player.afterX / kSize) * kSize;
+		// 右辺の X 座標
+		m_Block.RightX = (float)((int)player.afterX / kSize + 1) * kSize;
+		// 上辺の Y 座標
+		m_Block.TopY = (float)((int)player.afterY / kSize ) * kSize ;
+		// 下辺の Y 座標
+		m_Block.BottomY = (float)((int)player.afterY / kSize + 1) * kSize;
+		
+		// 上辺に当たっていた場合
+		if (CheckHitKey(KEY_INPUT_UP))
 		{
-			Up = + 1;
-			m_playerY--;
-			m_PlayerFrameCount = 0;
+			//player.y +=5.0f;
+			// 移動量を補正する
+			player.MoveY = m_Block.BottomY - Y + 1.0f;
+
+			//上辺に当たったと返す
+			return 3;
 		}
 
-	}
-	if (CheckHitKey(KEY_INPUT_DOWN))
-	{
-		m_PlayerFrameCount++;
-		if (m_PlayerFrameCount >= m_PlayerWaitingTime)
+		// 下辺に当たっていた場合
+		if (CheckHitKey(KEY_INPUT_DOWN))
 		{
-			Do = + 1;
-			m_playerY++;
-			m_PlayerFrameCount = 0;
+			// 移動量を補正する
+			player.MoveY = m_Block.TopY - Y - 1.0f;
+
+			// 下辺に当たったと返す
+			return 4;
 		}
-	}
-	if (CheckHitKey(KEY_INPUT_RIGHT))
-	{
-		m_PlayerFrameCount++;
-		if (m_PlayerFrameCount >= m_PlayerWaitingTime)
+		
+		// 左辺に当たっていた場合
+		if (player.MoveX < 0.0f)
 		{
-			Ri = +1;
-			m_playerX++;
-			m_PlayerFrameCount = 0;
+			// 移動量を補正する
+			player.MoveX = m_Block.RightX - X + 1.0f;
+
+			// 左辺に当たったと返す
+			return 1;
 		}
-	}
-	if (CheckHitKey(KEY_INPUT_LEFT))
-	{
-		m_PlayerFrameCount++;
-		if (m_PlayerFrameCount >= m_PlayerWaitingTime)
+		// 右辺に当たっていた場合
+		if (player.MoveX > 0.0f)
 		{
-			Le = +1;
-			m_playerX--;
-			m_PlayerFrameCount = 0;
+			// 移動量を補正する
+			player.MoveX = m_Block.LeftX - X - 1.0f;
+
+			// 右辺に当たったと返す
+			return 2;
 		}
+
+		return 5;
 	}
-	for (int x = 0; x < kFieldX; x++)
+
+	// プレイヤーと動かせるブロックが当たってるかチェック
+	if (GetChipParam(player.afterX, player.afterY) == 2)
 	{
 		for (int y = 0; y < kFieldY; y++)
 		{
-			// プレイヤーとブロックがぶつかったら
-			if (m_playerX == m_MovingBlockX && m_playerY == m_MovingBlockY )
+			for (int x = 0; x < kFieldX; x++)
 			{
 				if (m_field[y][x] == kMovingBlock)
 				{
-					m_field[y][x] = kEmpty;
-					if (Up == 1)
+					// 上辺に当たっていた場合
+					if (CheckHitKey(KEY_INPUT_UP))
 					{
-						//m_playerY++;
-						m_MovingBlockY--;
+						if (m_field[y - 1][x] == 0)
+						{
+							m_field[y][x] = 0;
+							m_field[y - 1][x] = 1;
+							return 1;
+						}
 					}
-					if (Do == 1)
-					{
-						//m_playerY--;
-						m_MovingBlockY++;
-					}
-					if (Ri == 1)
-					{
-						//m_playerX--;
-						m_MovingBlockX++;
-					}
-					if (Le == 1)
-					{
-					//	m_playerX++;
-						m_MovingBlockX--;
-					}
-					if (m_field[y][x] == kRightWall)
-					{
-						m_MovingBlockX--;
-					}
-					if (m_field[y][x] == kLeftWall)
-					{
-						m_MovingBlockX++;
-					}
-					if (m_field[y][x] == kUpWall)
-					{
-						m_MovingBlockY++;
-					}
-					if (m_field[y][x] == kDownWall)
-					{
-						m_MovingBlockY--;
-					}
-					m_field[y][x] = kMovingBlock;
-				}
-			}
-			// プレイヤーと壁が当たった場合
-			if (m_field[m_playerY][m_playerX] == kRightWall)
-			{
-				m_playerX--;
-			}
-			if (m_field[m_playerY][m_playerX] == kLeftWall)
-			{
-				m_playerX++;
-			}
-			if (m_field[m_playerY][m_playerX] == kUpWall)
-			{
-				m_playerY++;
-			}
-			if (m_field[m_playerY][m_playerX] == kDownWall)
-			{
-				m_playerY--;
-			}
 
+					// 下辺に当たっていた場合
+					if (CheckHitKey(KEY_INPUT_DOWN))
+					{
+						if (m_field[y + 1][x] == 0)
+						{
+							m_field[y][x] = 0;
+							m_field[y + 1][x] = 1;
+							return 1;
+						}
+					}
 
-			
-
-
-			// 敵とプレイヤー
-			if (m_playerX == m_MovingEnemyX || m_playerY == m_MovingEnemyY)
-			{
-				if (shotFlag == false)
-				{
-					m_shotX = m_MovingEnemyX;
-					m_shotY = m_MovingEnemyY;
+					// 左辺に当たっていた場合
+					if (CheckHitKey(KEY_INPUT_LEFT))
+					{
+						if (m_field[y][x - 1] == 0)
+						{
+							m_field[y][x] = 0;
+							m_field[y][x - 1] = 1;
+							return 1;
+						}
+					}
+					// 右辺に当たっていた場合
+					if (CheckHitKey(KEY_INPUT_RIGHT))
+					{
+						if (m_field[y][x + 1] == 0)
+						{
+							m_field[y][x] = 0;
+							m_field[y][x + 1] = 1;
+							return 1;
+						}
+					}
 				}
 				
-				shotFlag = true;
-				// 敵よりも上にプレイヤーがいた場合
-				if (m_playerY < m_MovingEnemyY)
-				{
-					clsDx();
-					printfDx("上にいた\n");
-					m_shotX = m_MovingEnemyX;
-					m_ShotFrameCount++;
-					if (m_ShotFrameCount >= 300)
-					{
-						m_shotY--;
-						m_ShotFrameCount = 0;
-					}	
-				}
-				// 敵よりも下にプレイヤーがいた場合
-				else if (m_playerY > m_MovingEnemyY)
-				{
-					clsDx();
-					printfDx("下にいた\n");
-					m_shotX = m_MovingEnemyX;
-					m_ShotFrameCount++;
-					if (m_ShotFrameCount >= 300)
-					{
-						m_shotY++;
-						m_ShotFrameCount = 0;
-					}
-				}
-				// 敵よりも左にプレイヤーがいた場合
-				if (m_playerX < m_MovingEnemyX)
-				{
-					clsDx();
-					printfDx("左にいた\n");
-					m_shotY = m_MovingEnemyY;
-					m_ShotFrameCount++;
-					if (m_ShotFrameCount >= 300)
-					{
-						m_shotX--;
-						m_ShotFrameCount = 0;
-					}
-				}
-				// 敵よりも右にプレイヤーがいた場合
-				else if (m_playerX > m_MovingEnemyX)
-				{
-					clsDx();
-					printfDx("右にいた\n");
-					m_shotY = m_MovingEnemyY;
-					m_ShotFrameCount++;
-					if (m_ShotFrameCount >= 300)
-					{
-						m_shotX++;
-						m_ShotFrameCount = 0;
-					}
-				}
-			}
-			
-			// 球がブロックに当たったら、セーフ
-			if (m_shotY == m_MovingBlockY && m_shotX == m_MovingBlockX)
-			{
-				printfDx("セーフ\n");
-
-				m_shotX = 0;
-				m_shotY = 0;
-				shotFlag = false;
-				return;
-			}
-
-			// 球がプレイヤーに当たったら、アウト
-			// プレイヤーは初期位置に戻される
-			if (m_shotY == m_playerY && m_shotX == m_playerX)
-			{
-				printfDx("ゲームオーバー\n");
-
-				m_shotX = 0;
-				m_shotY = 0;
-
-				shotFlag = false;
-
-				m_playerX = 1;
-				m_playerY = 1;
-				return;
 			}
 		}
 	}
+	return 0;
 }
+
+//-----------------------------------------
+// マップチップの値を取得する関数
+//-----------------------------------------
+int Field::GetChipParam(float X, float Y)
+{
+	int x, y;
+	// 整数値へ変換
+	x = (int)X / kSize;
+	y = (int)Y / kSize;
+
+	//printfDx("%d\n", m_field[y][x]);
+	if (m_field[y][x] == 5)
+	{
+		printfDx("壁に当たった \n");
+		return 1;
+	}
+	if (m_field[y][x] == 1)
+	{
+		printfDx("ブロックに当たった \n");
+		return 2;
+	}
+	
+}
+
 
 void Field::draw()
 {
-	//printfDx("pX=%d  pY=%d  eX=%d  eY=%d\n", m_playerX, m_playerY,m_enemyX,m_enemyY);
+	//printfDx("pX=%d  pY=%d  eX=%d  eY=%d\n", player.x, player.y,m_enemyX,m_enemyY);
 
 	//printfDx("bX=%d    eX=%d   \n", m_blockX,m_enemyX);
 
-	//clsDx();
-	for (int x = 0; x < kFieldX; x++)
+	// マップの描画
+	for (int y = 0; y < kFieldY; y++)
 	{
-		for (int y = 0; y < kFieldY; y++)
+		for (int x = 0; x < kFieldX; x++)
 		{
-			int posX = x * kSize + m_fieldX;
-			int posY = y * kSize + m_fieldY;
-
-			int plyerX = m_playerX * kSize + m_fieldX;
-			int plyerY = m_playerY * kSize + m_fieldY;
-
-			int MovingEnemyX = m_MovingEnemyX * kSize + m_fieldX;
-			int MovingEnemyY = m_MovingEnemyY * kSize + m_fieldY;
-
-			int blockX = m_MovingBlockX * kSize + m_fieldX;
-			int blockY = m_MovingBlockY * kSize + m_fieldY;
-
-			int shotX = m_shotX * kSize + m_fieldX;
-			int shotY = m_shotY * kSize + m_fieldY;
-
-
-			// フィールドの描写
-			DrawBox(posX, posY,
-				posX + kSize, posY + kSize,
-				0xffffff, false);
-			// 動く敵の描写
-			DrawBox(MovingEnemyX, MovingEnemyY,
-				MovingEnemyX + kSize, MovingEnemyY + kSize,
-				0xff00ff, true);
-			// プレイヤーの描写
-			DrawBox(plyerX, plyerY,
-				plyerX + kSize, plyerY + kSize,
-				0xff0000, true);
-
-			if (shotFlag == true)
+			// １は当たり判定チップを表しているので１のところだけ描画
+			if (m_field[y][x] == 5)
 			{
-				// 弾の描写
-				DrawBox(shotX, shotY,
-					shotX + kSize, shotY + kSize,
-					0xffffff, true);
+				DrawBox(m_fieldX + x * kSize, m_fieldY + y * kSize,
+					m_fieldX + x * kSize + kSize, m_fieldY + y * kSize + kSize,
+					GetColor(255, 255, 255), FALSE);
 			}
-			
-			// ブロックの描写
-			DrawBox(blockX, blockY,
-				blockX + kSize, blockY + kSize,
-				0xffff00, true);
-
-			if (m_field[y][x] == kRightWall || m_field[y][x] == kLeftWall ||
-				m_field[y][x] == kUpWall || m_field[y][x] == kDownWall)
+			if (m_field[y][x] == 1)
 			{
-				DrawBox(posX, posY,
-					posX + kSize, posY + kSize,
-					0xffffff, true);
+				DrawBox(m_fieldX + x * kSize, m_fieldY + y * kSize,
+					m_fieldX + x * kSize + kSize, m_fieldY + y * kSize + kSize,
+					GetColor(255, 0, 255), TRUE);
 			}
-
-			//printfDx("%d ", m_field[y][x]);
 		}
-	//	printfDx("\n");
 	}
+	
+	// キャラクタの描画
+	DrawBox((int)(m_fieldX + player.x - player.size * 0.5f), (int)(m_fieldY + player.y - player.size * 0.5f),
+		(int)(m_fieldX + player.x + player.size * 0.5f) + 1, (int)(m_fieldY + player.y + player.size * 0.5f) + 1,
+		GetColor(255, 0, 0), TRUE);
+	
+		
+	//if (shotFlag == true)
+			//{
+			//	if (m_field[y][x] == kShot)
+			//	{
+			//	}
+			//	//// 弾の描写
+			//	//DrawBox(shotX, shotY,
+			//	//	shotX + kSize, shotY + kSize,
+			//	//	0xffffff, true);
+			//}
+			//if (m_field[y][x] == kRightWall || m_field[y][x] == kLeftWall ||
+			//	m_field[y][x] == kUpWall || m_field[y][x] == kDownWall)
+			//{
+			//	DrawBox(posX, posY,
+			//		posX + kSize, posY + kSize,
+			//		0xffffff, true);
+			//}
+			//for (int y = 0; y < kFieldY; y++)
+			//{
+			//	for (int x = 0; x < kFieldX; x++)
+			//	{
+			//		printfDx("%d", m_field[y][x]);
+			//	}
+			//	printfDx("\n");
+			//}
+		
+			
 }

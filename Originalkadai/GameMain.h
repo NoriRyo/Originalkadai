@@ -11,6 +11,8 @@ public:
 	void update();
 	void draw();
 private:
+
+
 	Field* m_pField;
 };
 
