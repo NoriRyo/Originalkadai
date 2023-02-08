@@ -4,53 +4,48 @@
 #include "Player.h"
 #include "Game.h"
 
-#define kFieldX (13)
-#define kFieldY (13)
+
 #define kSize (48)
 #define SPEED (2.0f)
 
-//#define kFieldX (Game::kScreenWidth / kSize)
-//#define kFieldY (Game::kScreenHeight/ kSize)
-
-
-//#define SPEED   (5.0f)   // キャラの移動スピード
-
- 
-char m_field[kFieldY][kFieldX] =
+char m_field[13][13] =
 {
-	5, 5,5,5, 5,5,5,5, 5,5,5,5, 5,
+	{5, 5,5,5, 3,5,5,5, 5,5,5,5, 5},
 
-	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
-	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
-	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+	{5, 5,0,1, 0,0,4,0, 0,1,0,0, 5},
+	{5, 0,0,1, 0,0,5,0, 5,0,0,1, 5},
+	{5, 0,5,5, 5,5,5,5, 5,5,5,0, 5},
 
-	5, 0,0,0, 0,0,5,5, 0,0,0,0, 5,
-	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
-	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
-	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+	{5, 0,5,0, 2,1,0,0, 2,5,0,0, 5},
+	{5, 0,0,0, 0,1,0,0, 0,1,0,0, 5},
+	{5, 0,5,0, 2,1,0,0, 2,5,0,0, 5},
+	{5, 0,5,1, 5,0,5,5, 5,5,5,0, 5},
 
-	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
-	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
-	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
-	5, 0,0,0, 0,0,0,0, 0,0,0,0, 5,
+	{5, 0,5,0, 0,0,0,0, 2,5,0,0, 5},
+	{5, 1,5,5, 5,5,5,5, 5,5,0,5, 5},
+	{5, 0,0,5, 0,0,0,0, 1,0,0,5, 5},
+	{5, 0,0,2, 0,5,0,0, 1,0,0,5, 5},
 
-	5, 5,5,5, 5,5,5,5, 5,5,5,5, 5,
+	{5, 5,5,5, 5,5,5,5, 5,5,5,5, 5}
 
 };
+
+
 namespace
 {
 	constexpr int kEmpty = 0;		// 空っぽ
 	constexpr int kMovingBlock = 1;	// 動かせるブロック
-	constexpr int kMovingEnemy = 2;	// 動く敵
-	constexpr int kPlayer = 3;		// プレイヤー
-	constexpr int kShot = 4;		// 弾
+	constexpr int kHeart = 2;		// ハート
+	constexpr int kGoal = 3;		// ゴール（扉）
+	constexpr int kTreasure = 4;	// 宝箱
 	constexpr int kWall = 5;		// 動かせない石
+	
 }
 
 Field::Field() :
 
-	m_fieldX(300),
-	m_fieldY(64)
+	m_fieldX((Game::kScreenWidth/2)/2),
+	m_fieldY(124)
 	//m_MovingEnemyX(3),		// 動く敵の初期位置
 	//m_MovingEnemyY(6),
 	//m_MovingBlockY(4),
@@ -59,9 +54,7 @@ Field::Field() :
 	//m_PlayerWaitingTime(8),	// プレイヤー待機時間
 	//m_EnemyWaitingTime(8)	// エネミー  待機時間
 {
-	//m_shotX = m_MovingEnemyX;	// 球の初期位置
-	//m_shotY = m_MovingEnemyY;
-	m_field[5][5] = kMovingBlock;
+	
 
 }
 
@@ -72,16 +65,16 @@ Field::~Field()
 
 void Field::init()
 {
-	player.init();
+	player.init();	
 
+
+	
 }
 
 void Field::update()
 {
-
+	
 	clsDx();
-
-
 	//// エネミーの移動
 	//if (enemyRightMove == true)
 	//{
@@ -139,6 +132,7 @@ void Field::update()
 	//	}
 	//}
 
+	HeartCount = 0;
 	player.MoveX = 0.0f;
 	player.MoveY = 0.0f;
 
@@ -186,8 +180,6 @@ void Field::update()
 		player.y *= -1.0f;
 	}
 	
-
-
 	// 後に左右移動成分だけでチェック
 	// 左下のチェック
 	BlockHitCheck(player.x - player.hsize, player.y + player.hsize, player.MoveX, player.Dummy);
@@ -294,32 +286,29 @@ void Field::update()
 int Field::BlockHitCheck(float X, float Y, float& PlayerMoveX, float& PlayerMoveY)
 {
 	// 移動量を足す
-
 	player.afterX = X + PlayerMoveX;
 	player.afterY = Y + PlayerMoveY;
-	
-	
+
 
 	// 当たり判定のあるブロックに当たっているかチェック
-	if (GetChipParam(player.afterX, player.afterY) == 1)
+	if (GetChipParam(player.afterX, player.afterY) == 5)
 	{
 		// 当たっていたら壁から離す処理を行う
 		// ブロックの上下左右の座標を算出
 		// 左辺の X 座標
-		m_Block.LeftX = (float)((int)player.afterX / kSize) * kSize;
+		player.LeftX = (float)((int)player.afterX / kSize) * kSize;
 		// 右辺の X 座標
-		m_Block.RightX = (float)((int)player.afterX / kSize + 1) * kSize;
+		player.RightX = (float)((int)player.afterX / kSize + 1) * kSize;
 		// 上辺の Y 座標
-		m_Block.TopY = (float)((int)player.afterY / kSize ) * kSize ;
+		player.TopY = (float)((int)player.afterY / kSize ) * kSize ;
 		// 下辺の Y 座標
-		m_Block.BottomY = (float)((int)player.afterY / kSize + 1) * kSize;
+		player.BottomY = (float)((int)player.afterY / kSize + 1) * kSize;
 		
 		// 上辺に当たっていた場合
 		if (CheckHitKey(KEY_INPUT_UP))
 		{
-			//player.y +=5.0f;
 			// 移動量を補正する
-			player.MoveY = m_Block.BottomY - Y + 1.0f;
+			player.MoveY = player.BottomY - Y + 1.0f;
 
 			//上辺に当たったと返す
 			return 3;
@@ -329,7 +318,7 @@ int Field::BlockHitCheck(float X, float Y, float& PlayerMoveX, float& PlayerMove
 		if (CheckHitKey(KEY_INPUT_DOWN))
 		{
 			// 移動量を補正する
-			player.MoveY = m_Block.TopY - Y - 1.0f;
+			player.MoveY = player.TopY - Y - 1.0f;
 
 			// 下辺に当たったと返す
 			return 4;
@@ -339,7 +328,7 @@ int Field::BlockHitCheck(float X, float Y, float& PlayerMoveX, float& PlayerMove
 		if (player.MoveX < 0.0f)
 		{
 			// 移動量を補正する
-			player.MoveX = m_Block.RightX - X + 1.0f;
+			player.MoveX = player.RightX - X + 1.0f;
 
 			// 左辺に当たったと返す
 			return 1;
@@ -348,17 +337,20 @@ int Field::BlockHitCheck(float X, float Y, float& PlayerMoveX, float& PlayerMove
 		if (player.MoveX > 0.0f)
 		{
 			// 移動量を補正する
-			player.MoveX = m_Block.LeftX - X - 1.0f;
+			player.MoveX = player.LeftX - X - 1.0f;
 
 			// 右辺に当たったと返す
 			return 2;
 		}
-
 		return 5;
 	}
 
+	int i, j;
+	// 整数値へ変換
+	i = (int)X / kSize;
+	j = (int)Y / kSize;
 	// プレイヤーと動かせるブロックが当たってるかチェック
-	if (GetChipParam(player.afterX, player.afterY) == 2)
+	if (GetChipParam(player.afterX, player.afterY) == 0)
 	{
 		for (int y = 0; y < kFieldY; y++)
 		{
@@ -369,47 +361,90 @@ int Field::BlockHitCheck(float X, float Y, float& PlayerMoveX, float& PlayerMove
 					// 上辺に当たっていた場合
 					if (CheckHitKey(KEY_INPUT_UP))
 					{
-						if (m_field[y - 1][x] == 0)
+						if (m_field[y - 1][x] == 0 && y + 1 == j && x == i)
 						{
 							m_field[y][x] = 0;
-							m_field[y - 1][x] = 1;
+							m_field[y - 1][x] = kMovingBlock;
 							return 1;
+						}
+						else
+						{
+							player.MoveY = 0;
 						}
 					}
 
 					// 下辺に当たっていた場合
 					if (CheckHitKey(KEY_INPUT_DOWN))
 					{
-						if (m_field[y + 1][x] == 0)
+						if (m_field[y + 1][x] == 0 && y - 1 == j && x == i)
 						{
 							m_field[y][x] = 0;
-							m_field[y + 1][x] = 1;
+							m_field[y + 1][x] = kMovingBlock;
 							return 1;
+						}
+						else
+						{
+							player.MoveY = 0;
 						}
 					}
 
 					// 左辺に当たっていた場合
 					if (CheckHitKey(KEY_INPUT_LEFT))
 					{
-						if (m_field[y][x - 1] == 0)
+						if (m_field[y][x - 1] == 0 && y == j && x + 1 == i)
 						{
 							m_field[y][x] = 0;
-							m_field[y][x - 1] = 1;
+							m_field[y][x - 1] = kMovingBlock;
 							return 1;
+						}
+						else
+						{
+							player.MoveX = 0;
 						}
 					}
 					// 右辺に当たっていた場合
 					if (CheckHitKey(KEY_INPUT_RIGHT))
 					{
-						if (m_field[y][x + 1] == 0)
+						if (m_field[y][x + 1] == 0 && y == j && x - 1 == i)
 						{
 							m_field[y][x] = 0;
-							m_field[y][x + 1] = 1;
+							m_field[y][x + 1] = kMovingBlock;
 							return 1;
+						}
+						else
+						{
+							player.MoveX = 0;
 						}
 					}
 				}
 				
+			}
+		}
+	}
+
+	// 盤面にあるハートの数を数える
+	for (int y = 0; y < kFieldY; y++)
+	{
+		for (int x = 0; x < kFieldX; x++)
+		{
+			if (m_field[y][x] == kHeart)
+			{
+				HeartCount++;
+			}
+		}
+	}
+	
+	// ハートの数が０になったら、宝箱を開ける
+	for (int y = 0; y < kFieldY; y++)
+	{
+		for (int x = 0; x < kFieldX; x++)
+		{
+			if (HeartCount == 0)
+			{
+				if (m_field[y][x] == 3)
+				{
+					m_field[y][x] = 0;
+				}
 			}
 		}
 	}
@@ -426,15 +461,20 @@ int Field::GetChipParam(float X, float Y)
 	x = (int)X / kSize;
 	y = (int)Y / kSize;
 
-	//printfDx("%d\n", m_field[y][x]);
 	if (m_field[y][x] == 5)
 	{
 		printfDx("壁に当たった \n");
-		return 1;
+		return 5;
 	}
 	if (m_field[y][x] == 1)
 	{
 		printfDx("ブロックに当たった \n");
+		return 0;
+	}
+	if (m_field[y][x] == kHeart)
+	{
+		m_field[y][x] = 0;
+		printfDx("ハートに当たった \n");
 		return 2;
 	}
 	
@@ -443,27 +483,46 @@ int Field::GetChipParam(float X, float Y)
 
 void Field::draw()
 {
-	//printfDx("pX=%d  pY=%d  eX=%d  eY=%d\n", player.x, player.y,m_enemyX,m_enemyY);
-
-	//printfDx("bX=%d    eX=%d   \n", m_blockX,m_enemyX);
 
 	// マップの描画
 	for (int y = 0; y < kFieldY; y++)
 	{
 		for (int x = 0; x < kFieldX; x++)
 		{
-			// １は当たり判定チップを表しているので１のところだけ描画
+			//　壁の描画
 			if (m_field[y][x] == 5)
 			{
 				DrawBox(m_fieldX + x * kSize, m_fieldY + y * kSize,
 					m_fieldX + x * kSize + kSize, m_fieldY + y * kSize + kSize,
-					GetColor(255, 255, 255), FALSE);
+					GetColor(255, 255, 255), TRUE);
 			}
+			//　ブロックの描画
 			if (m_field[y][x] == 1)
 			{
 				DrawBox(m_fieldX + x * kSize, m_fieldY + y * kSize,
 					m_fieldX + x * kSize + kSize, m_fieldY + y * kSize + kSize,
-					GetColor(255, 0, 255), TRUE);
+					GetColor(0, 255, 0), TRUE);
+			}
+			//　ハートの描画
+			if (m_field[y][x] == 2)
+			{
+				DrawBox(m_fieldX + x * kSize, m_fieldY + y * kSize,
+					m_fieldX + x * kSize + kSize, m_fieldY + y * kSize + kSize,
+					GetColor(255, 155, 155), TRUE);
+			}
+			//　ＧＯＡＬの描画
+			if (m_field[y][x] == 3)
+			{
+				DrawBox(m_fieldX + x * kSize, m_fieldY + y * kSize,
+					m_fieldX + x * kSize + kSize, m_fieldY + y * kSize + kSize,
+					GetColor(0, 0, 255), TRUE);
+			}
+			//　宝箱の描画
+			if (m_field[y][x] == 4)
+			{
+				DrawBox(m_fieldX + x * kSize, m_fieldY + y * kSize,
+					m_fieldX + x * kSize + kSize, m_fieldY + y * kSize + kSize,
+					GetColor(218,165,32), TRUE);
 			}
 		}
 	}

@@ -29,6 +29,12 @@ public:
 	float afterX;	
 	float afterY;
 
+
+	float LeftX;	//　ブロックの左
+	float TopY;	//　ブロックの上
+	float RightX;	//　ブロックの右
+	float BottomY;	//　ブロックのした
+
 private:
 
 };

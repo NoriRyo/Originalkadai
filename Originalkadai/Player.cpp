@@ -13,7 +13,7 @@ void Player::init()
 	MoveX = 0.0f;
 	MoveY = 0.0f;
 
-	size = 46;
+	size = 40;
 	speed = 5.0f;
 	Dummy = 0.0f;
 }
