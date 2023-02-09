@@ -2,7 +2,19 @@
 class Player
 {
 public:
+	// 定数定義
 
+	// プレイヤーグラフィック分割数
+	static constexpr int kGraphicDivX = 4;
+	static constexpr int kGraphicDivY = 4;
+	static constexpr int kGraphicDivNum = kGraphicDivX * kGraphicDivY;
+
+	// プレイヤーグラフィックサイズ
+	static constexpr int kGraphicSizeX = 48;
+	static constexpr int kGraphicSizeY = 48;
+public:
+	Player();
+	virtual ~Player();
 	void init();
 	void Update();
 	void Draw();
@@ -35,7 +47,17 @@ public:
 	float RightX;	//　ブロックの右
 	float BottomY;	//　ブロックのした
 
-private:
 
+	// グラフィックデータ設定
+	void setHandle(int index, int handle) { m_handle[index] = handle; }
+
+
+private:
+	int m_handle[kGraphicDivNum];
+
+	// キャラクターのアニメーション
+	int m_animeNo;	//　表示する番号
+	int m_animeFrame;
+	int m_dirNo;	// 進行方向
 };
 

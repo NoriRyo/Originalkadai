@@ -10,6 +10,9 @@ public:
 	Field();
 	virtual ~Field();
 	virtual void init();
+	// 終了処理
+	void end();
+
 	virtual void update();
 
 	// マップとの当たり判定
@@ -26,8 +29,17 @@ private:
 	int m_fieldY;
 	// ハートの数
 	int HeartCount;
+	// ステージの数
+	int StageNumber = 1;
 
+	// 鍵を持ってるかどうか
+	int KeyGet;
+	
+	char m_field[13][13];
 
+	// プレイヤーのグラフィックハンドル
+	int m_hPlayerGraphic[Player::kGraphicDivNum];
+	// プレイヤー
 	Player player;
 	
 };

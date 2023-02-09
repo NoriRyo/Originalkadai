@@ -1,4 +1,5 @@
 #pragma once
+#include "Player.h"
 
 class Field;
 class GameMain
@@ -12,7 +13,7 @@ public:
 	void draw();
 private:
 
-
+	Player player;
 	Field* m_pField;
 };
 

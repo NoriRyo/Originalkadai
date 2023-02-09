@@ -13,15 +13,18 @@ GameMain::~GameMain()
 
 void GameMain::init()
 {
+	//player.init();
 	m_pField->init();
 }
 
 void GameMain::update()
 {
+	//player.Update();
 	m_pField->update();
 }
 
 void GameMain::draw()
 {
+	//player.Draw();
 	m_pField->draw();
 }

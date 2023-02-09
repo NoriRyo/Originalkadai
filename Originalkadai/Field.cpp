@@ -8,9 +8,33 @@
 #define kSize (48)
 #define SPEED (2.0f)
 
-char m_field[13][13] =
+// デバック
+//char m_field1[13][13] =
+//{
+//	{5, 5,5,5, 6,5,5,5, 5,5,5,5, 5},
+//
+//	{5, 0,0,0, 0,0,4,0, 0,0,0,0, 5},
+//	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+//	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+//
+//	{5, 0,0,0, 2,0,0,0, 0,0,0,0, 5},
+//	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+//	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+//	{5, 0,1,0, 0,0,0,0, 0,0,0,0, 5},
+//
+//	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+//	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+//	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+//	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+//
+//	{5, 5,5,5, 5,5,5,5, 5,5,5,5, 5}
+//
+//};
+
+// ステージ１
+char m_field1[13][13] =
 {
-	{5, 5,5,5, 3,5,5,5, 5,5,5,5, 5},
+	{5, 5,5,5, 6,5,5,5, 5,5,5,5, 5},
 
 	{5, 5,0,1, 0,0,4,0, 0,1,0,0, 5},
 	{5, 0,0,1, 0,0,5,0, 5,0,0,1, 5},
@@ -23,58 +47,117 @@ char m_field[13][13] =
 
 	{5, 0,5,0, 0,0,0,0, 2,5,0,0, 5},
 	{5, 1,5,5, 5,5,5,5, 5,5,0,5, 5},
-	{5, 0,0,5, 0,0,0,0, 1,0,0,5, 5},
+	{5, 0,0,5, 0,0,0,1, 0,0,0,5, 5},
 	{5, 0,0,2, 0,5,0,0, 1,0,0,5, 5},
 
 	{5, 5,5,5, 5,5,5,5, 5,5,5,5, 5}
 
 };
+// ステージ２
+char m_field2[13][13] =
+{
+	{5, 5,5,5, 6,5,5,5, 5,5,5,5, 5},
 
+	{5, 0,0,1, 0,0,4,0, 0,1,0,0, 5},
+	{5, 0,0,1, 0,0,0,0, 0,0,0,1, 5},
+	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
 
+	{5, 0,0,0, 2,1,0,0, 2,0,0,0, 5},
+	{5, 0,0,0, 0,0,0,0, 0,1,0,0, 5},
+	{5, 0,0,0, 0,1,0,0, 2,0,0,0, 5},
+	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+
+	{5, 0,0,0, 0,0,0,0, 2,0,0,0, 5},
+	{5, 1,0,0, 0,0,0,0, 0,0,0,0, 5},
+	{5, 0,0,0, 0,0,0,0, 1,0,0,0, 5},
+	{5, 0,0,2, 0,0,0,0, 1,0,0,0, 5},
+
+	{5, 5,5,5, 5,5,5,5, 5,5,5,5, 5}
+
+};
 namespace
 {
 	constexpr int kEmpty = 0;		// 空っぽ
 	constexpr int kMovingBlock = 1;	// 動かせるブロック
 	constexpr int kHeart = 2;		// ハート
+	constexpr int kDoor = 6;		//（扉）
 	constexpr int kGoal = 3;		// ゴール（扉）
 	constexpr int kTreasure = 4;	// 宝箱
+	constexpr int kTreasureOpen = 8;// 宝箱（開いている） 
 	constexpr int kWall = 5;		// 動かせない石
 	
+	const char* const kPlayarGraphicFilename = "data/player1.png";
+	//const char* const kPlayarGraphicFilename = "data/titleBg.jpg";
 }
+
 
 Field::Field() :
 
 	m_fieldX((Game::kScreenWidth/2)/2),
 	m_fieldY(124)
-	//m_MovingEnemyX(3),		// 動く敵の初期位置
-	//m_MovingEnemyY(6),
-	//m_MovingBlockY(4),
-	//m_ShotFrameCount(0),	// ショット  のカウント
-
-	//m_PlayerWaitingTime(8),	// プレイヤー待機時間
-	//m_EnemyWaitingTime(8)	// エネミー  待機時間
-{
 	
-
+{
+	for (auto& handle : m_hPlayerGraphic)
+	{
+		handle = -1;
+	}
 }
 
 Field::~Field()
 {
 	
+
+
+	
 }
 
 void Field::init()
 {
+	// ステージ切り替え
+	for (int y = 0; y < kFieldY; y++)
+	{
+		for (int x = 0; x < kFieldX; x++)
+		{
+			if (StageNumber == 1)
+			{
+				m_field[y][x] = m_field1[y][x];
+			}
+			if (StageNumber == 2)
+			{
+				m_field[y][x] = m_field2[y][x];
+			}
+		}
+	}
+	LoadDivGraph(kPlayarGraphicFilename, Player::kGraphicDivNum,
+		Player::kGraphicDivX, Player::kGraphicDivY,
+		Player::kGraphicSizeX, Player::kGraphicSizeY, m_hPlayerGraphic);
+
+	for (int i = 0; i < Player::kGraphicDivNum; i++)
+	{
+		player.setHandle(i, m_hPlayerGraphic[i]);
+	}
 	player.init();	
+}
 
-
-	
+void Field::end()
+{
+	for (auto& handle : m_hPlayerGraphic)
+	{
+		DeleteGraph(m_hPlayerGraphic[4]);
+	}
 }
 
 void Field::update()
 {
-	
 	clsDx();
+
+	player.Update();
+	
+	if (CheckHitKey(KEY_INPUT_1))
+	{
+		init();
+	}
+	
 	//// エネミーの移動
 	//if (enemyRightMove == true)
 	//{
@@ -290,8 +373,8 @@ int Field::BlockHitCheck(float X, float Y, float& PlayerMoveX, float& PlayerMove
 	player.afterY = Y + PlayerMoveY;
 
 
-	// 当たり判定のあるブロックに当たっているかチェック
-	if (GetChipParam(player.afterX, player.afterY) == 5)
+	// 当たり判定のある壁に当たっているかチェック
+	if (GetChipParam(player.afterX, player.afterY) == 0.5)
 	{
 		// 当たっていたら壁から離す処理を行う
 		// ブロックの上下左右の座標を算出
@@ -441,9 +524,33 @@ int Field::BlockHitCheck(float X, float Y, float& PlayerMoveX, float& PlayerMove
 		{
 			if (HeartCount == 0)
 			{
-				if (m_field[y][x] == 3)
+				for (int y = 0; y < kFieldY; y++)
 				{
-					m_field[y][x] = 0;
+					for (int x = 0; x < kFieldX; x++)
+					{
+						if (m_field[y][x] == kTreasure)
+						{
+							// 宝箱オープン
+							m_field[y][x] = kTreasureOpen;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// 鍵ゲット
+	if (GetChipParam(player.afterX, player.afterY) == KeyGet)
+	{
+		for (int y = 0; y < kFieldY; y++)
+		{
+			for (int x = 0; x < kFieldX; x++)
+			{
+				if (m_field[y][x] == kDoor)
+				{
+					//printfDx("扉開きます\n");
+					// 扉オープン
+					m_field[y][x] = kGoal;
 				}
 			}
 		}
@@ -461,29 +568,42 @@ int Field::GetChipParam(float X, float Y)
 	x = (int)X / kSize;
 	y = (int)Y / kSize;
 
-	if (m_field[y][x] == 5)
+	if (m_field[y][x] == kWall || m_field[y][x] == kDoor || m_field[y][x] == kTreasure)
 	{
-		printfDx("壁に当たった \n");
-		return 5;
+		//printfDx("壁に当たった \n");
+		return 0.5;
 	}
-	if (m_field[y][x] == 1)
+	if (m_field[y][x] == kMovingBlock)
 	{
-		printfDx("ブロックに当たった \n");
+		//printfDx("ブロックに当たった \n");
 		return 0;
 	}
 	if (m_field[y][x] == kHeart)
 	{
 		m_field[y][x] = 0;
-		printfDx("ハートに当たった \n");
+		//printfDx("ハートに当たった \n");
 		return 2;
 	}
-	
+	if (m_field[y][x] == kGoal)
+	{
+		//printfDx("GOAL \n");
+		if (StageNumber == 1)
+		{
+			StageNumber = 2;
+		}
+		init(); // 次のステージへ！！！！！！
+	}
+	if (m_field[y][x] == kTreasureOpen)
+	{
+		//printfDx("鍵ゲット \n");
+		return KeyGet;
+	}
 }
 
 
 void Field::draw()
 {
-
+	player.Draw();
 	// マップの描画
 	for (int y = 0; y < kFieldY; y++)
 	{
@@ -511,26 +631,40 @@ void Field::draw()
 					GetColor(255, 155, 155), TRUE);
 			}
 			//　ＧＯＡＬの描画
-			if (m_field[y][x] == 3)
+			if (m_field[y][x] == kGoal)
+			{
+				DrawBox(m_fieldX + x * kSize, m_fieldY + y * kSize,
+					m_fieldX + x * kSize + kSize, m_fieldY + y * kSize + kSize,
+					GetColor(0, 0, 255), FALSE);
+			}// 扉の描画
+			if (m_field[y][x] == kDoor)
 			{
 				DrawBox(m_fieldX + x * kSize, m_fieldY + y * kSize,
 					m_fieldX + x * kSize + kSize, m_fieldY + y * kSize + kSize,
 					GetColor(0, 0, 255), TRUE);
 			}
 			//　宝箱の描画
-			if (m_field[y][x] == 4)
+			if (m_field[y][x] == kTreasure)
 			{
 				DrawBox(m_fieldX + x * kSize, m_fieldY + y * kSize,
 					m_fieldX + x * kSize + kSize, m_fieldY + y * kSize + kSize,
 					GetColor(218,165,32), TRUE);
 			}
+			//　開いた宝箱の描画
+			if (m_field[y][x] == kTreasureOpen)
+			{
+				DrawBox(m_fieldX + x * kSize, m_fieldY + y * kSize,
+					m_fieldX + x * kSize + kSize, m_fieldY + y * kSize + kSize,
+					GetColor(218, 165, 32), FALSE);
+			}
 		}
 	}
 	
-	// キャラクタの描画
-	DrawBox((int)(m_fieldX + player.x - player.size * 0.5f), (int)(m_fieldY + player.y - player.size * 0.5f),
-		(int)(m_fieldX + player.x + player.size * 0.5f) + 1, (int)(m_fieldY + player.y + player.size * 0.5f) + 1,
-		GetColor(255, 0, 0), TRUE);
+	//// キャラクタの描画
+	//DrawBox((int)(m_fieldX + player.x - player.size * 0.5f), (int)(m_fieldY + player.y - player.size * 0.5f),
+	//	(int)(m_fieldX + player.x + player.size * 0.5f) + 1, (int)(m_fieldY + player.y + player.size * 0.5f) + 1,
+	//	GetColor(255, 0, 0), TRUE);
+
 	
 		
 	//if (shotFlag == true)
