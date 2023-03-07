@@ -26,38 +26,6 @@ public:
 	void Update();
 	void Draw();
 
-	// プレイヤーの座標(中心座標)
-	float x;	
-	float y;		
-
-	// プレイヤーのサイズ
-	int size;	
-
-	// プレイヤーの移動処理
-	float MoveX;
-	float MoveY;
-
-	// 
-	float Number;
-
-	// プレイヤーの速度
-	float speed;	
-
-	// 半分のサイズを算出
-	float Dummy;
-	float hsize;	
-
-	// プレイヤーの次の動き
-	float afterX;	
-	float afterY;
-
-
-	float LeftX;	//　ブロックの左
-	float TopY;	//　ブロックの上
-	float RightX;	//　ブロックの右
-	float BottomY;	//　ブロックのした
-
-
 	// グラフィックデータ設定
 	void PlayerSetHandle(int index, int handle) { m_PlayerHandle[index] = handle; }
 	void ExplosionSetHandle(int index, int handle) { m_ExplosionHandle[index] = handle; }

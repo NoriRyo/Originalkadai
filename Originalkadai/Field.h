@@ -18,14 +18,18 @@ public:
 
 	virtual SceneBase* update()override;
 
-	// マップとの当たり判定
-	int EnemyBlockHitCheck(float enemyX, float enemyY, float& enemyMoveX, float& enemyMoveY);
+	// 敵１との当たり判定
+	int Enemy1BlockHitCheck(float enemyX, float enemyY, float& enemyMoveX, float& enemyMoveY);
+	// 敵２との当たり判定
+	int Enemy2BlockHitCheck(float enemyX, float enemyY, float& enemyMoveX, float& enemyMoveY);
+
 	// マップチップの値を取得する関数
 	int GetChipParam(float X, float Y);
 
 	virtual void draw()override;
 
-	
+	// ステージの数
+	int StageNumber = 1;
 
 private:
 	// 盤面の表示左上座標
@@ -35,8 +39,7 @@ private:
 	int HeartCount;
 	// 宝箱の数
 	int TreasureCount;
-	// ステージの数
-	int StageNumber = 1;
+	
 
 	// 鍵を持ってるかどうか
 	int KeyGet = 12;
@@ -49,25 +52,27 @@ private:
 	// 箱に当たっているかどうか
 	int BooxHit = 17;
 
+	int HeartMax = 0;
+
 	int PlayerCount = 0;
 	
-	char m_field[13][13];
+	int m_field[13][13];
 
 	// プレイヤーのグラフィックハンドル
 	int m_hPlayerGraphic[Player::kPlayerGraphicDivNum];
 	// プレイヤーの爆発グラフィックハンドル
 	int m_hExplosionGraphic[Player::kExplosionGraphicDivNum];
+	// 扉のグラフィックハンドル
+	int m_hDoorGraphic[Door::kDoorGraphicDivNum];
 	// プレイヤー
 	Player player;
 	//	生きているかどうか
 	int death = true;
-	// 扉のグラフィックハンドル
-	int m_hDoorGraphic[Door::kDoorGraphicDivNum];
 	// 扉
 	Door door;
 
 	// 動く敵
-	MovingEnemy mEnemy;
+	MovingEnemy mEnemy1;
 
 	MovingEnemy mEnemy2;
 	

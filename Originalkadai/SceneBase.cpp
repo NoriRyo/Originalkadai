@@ -6,7 +6,7 @@
 namespace
 {
 	// フェード速度
-	constexpr int kFadeSpeed = 8;
+	constexpr int kFadeSpeed = 5;
 }
 
 SceneBase::SceneBase()

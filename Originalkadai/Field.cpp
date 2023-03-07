@@ -1,6 +1,5 @@
 #include "Field.h"
 #include "DxLib.h"
-#include "GameMain.h"
 #include "Player.h"
 #include "Game.h"
 #include "Door.h"
@@ -51,10 +50,9 @@ char m_field1[13][13] =
 	{5, 0,5,0, 0,0,0,0, 2,5,0,0, 5},
 	{5, 1,5,5, 5,5,5,5, 5,5,0,5, 5},
 	{5, 0,0,5, 0,0,0,1, 0,0,0,5, 5},
-	{5, 3,0,2, 0,5,0,0, 1,0,0,5, 5},
+	{5, 10,0,2, 0,5,0,0, 1,0,0,5, 5},
 
 	{5, 5,5,5, 5,5,5,5, 5,5,5,5, 5}
-
 };
 // ステージ２
 char m_field2[13][13] =
@@ -73,29 +71,49 @@ char m_field2[13][13] =
 	{5, 0,0,0, 0,0,0,0, 0,0,1,0, 5},
 	{5, 0,5,5, 0,5,0,5, 5,5,5,0, 5},
 	{5, 0,0,0, 0,5,0,0, 0,0,0,0, 5},
-	{5, 5,2,2, 2,5,0,0, 0,0,0,3, 5},
+	{5, 5,2,2, 2,5,0,0, 0,0,0,10, 5},
 
 	{5, 5,5,5, 5,5,5,5, 5,5,5,5, 5}
-
 };
 // ステージ３
 char m_field3[13][13] =
 {
-	{5, 5,5,5, 6,5,5,5, 5,5,5,5, 5},
+	{5, 5,5,5, 5,5,5,5, 6,5,5,5, 5},
 
-	{5, 0,0,0, 0,0,4,0, 0,0,0,0, 5},
+	{5, 0,5,2, 0,5,1,5, 0,2,5,0, 5},
+	{5, 0,0,0, 5,5,2,5, 5,0,0,0, 5},
+	{5, 0,0,5, 1,0,0,0, 1,5,0,0, 5},
+
+	{5, 0,5,5, 0,1,1,1, 0,5,5,0, 5},
+	{5, 0,1,0, 1,0,0,0, 1,0,1,0, 5},
+	{5, 0,1,0, 1,0,10,0, 1,0,1,0, 5},
+	{5, 0,1,0, 1,0,0,0, 1,0,1,0, 5},
+
+	{5, 0,5,5, 0,1,1,1, 0,5,5,0, 5},
+	{5, 0,0,5, 1,0,0,0, 1,5,0,0, 5},
+	{5, 0,0,0, 5,5,2,5, 5,0,0,0, 5},
+	{5, 0,5,4, 0,5,1,5, 0,2,5,0, 5},
+
+	{5, 5,5,5, 5,5,5,5, 5,5,5,5, 5}
+};
+// ステージ4
+char m_field4[13][13] =
+{
+	{5, 5,5,5, 5,5,5,5, 5,5,5,5, 5},
+
+	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
 	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
 	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
 
-	{5, 0,0,0, 2,0,0,0, 0,0,0,0, 5},
-	{5, 0,0,0, 0,0,0,2, 2,0,0,0, 5},
-	{5, 0,0,0, 0,0,0,0, 2,0,0,0, 5},
-	{5, 0,1,0, 0,0,0,0, 0,0,0,0, 5},
+	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
+	{5, 0,0,0, 6,0,0,0, 0,0,0,0, 5},
 
+	{5, 0,0,0, 0,4,2,0, 0,0,0,0, 5},
+	{5, 0,0,0, 0,0,10,0, 0,0,0,0, 5},
+	{5, 0,0,0, 1,0,0,0, 0,0,0,0, 5},
 	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
-	{5, 0,1,0, 0,0,0,0, 0,0,0,0, 5},
-	{5, 0,0,0, 0,0,0,0, 0,0,0,0, 5},
-	{5, 0,0,0, 0,0,0,0, 0,0,0,3, 5},
 
 	{5, 5,5,5, 5,5,5,5, 5,5,5,5, 5}
 
@@ -109,7 +127,7 @@ namespace
 	constexpr int kTreasure = 4;	// 宝箱
 	constexpr int kTreasureOpen = 8;// 宝箱（開いている） 
 	constexpr int kWall = 5;		// 動かせない石
-	constexpr int kPlayer = 3;		// プレイヤー
+	constexpr int kPlayer = 10;		// プレイヤー
 	
 	
 	const char* const kPlayarGraphicFilename = "data/player3.png";
@@ -123,8 +141,12 @@ namespace
 Field::Field() :
 
 	m_fieldX((Game::kScreenWidth/2)/2),
-	m_fieldY(124)
-	
+	m_fieldY(124),
+	m_hDoorGraphic(),
+	m_hExplosionGraphic(),
+	m_hPlayerGraphic(),
+	m_field()
+
 {
 	for (auto& playerHandle : m_hPlayerGraphic)
 	{
@@ -138,7 +160,8 @@ Field::Field() :
 	{
 		doorHandle = -1;
 	}
-	
+	HeartCount = 0;
+	TreasureCount = 0;			
 }
 
 Field::~Field()
@@ -148,6 +171,7 @@ Field::~Field()
 
 void Field::init()
 {
+	//PlaySoundFile("BGM.wav", DX_PLAYTYPE_BACK+DX_PLAYTYPE_LOOP);
 	// ステージ切り替え
 	for (int y = 0; y < kFieldY; y++)
 	{
@@ -164,6 +188,10 @@ void Field::init()
 			if (StageNumber == 3)
 			{
 				m_field[y][x] = m_field3[y][x];
+			}
+			if (StageNumber == 4)
+			{
+				m_field[y][x] = m_field4[y][x];
 			}
 		}
 	}
@@ -202,11 +230,23 @@ void Field::init()
 	Key = true;
 
 	// 敵
-	mEnemy.init();
+	mEnemy1.init();
 	mEnemy2.init();
-
-	//mEnemy.setPos(552.0f - 48.0f * 4,552.0f - 48.0f * 3);
-	//mEnemy2.setPos(452.0f - 48.0f * 4, 452.0f - 48.0f * 3);
+	if (StageNumber == 1 || StageNumber == 3)
+	{
+		mEnemy1.setPos(0, -200);
+		mEnemy2.setPos(0, -200);
+	}
+	if (StageNumber == 2)
+	{
+		mEnemy1.setPos(552.0f - 48.0f * 4, 552.0f - 48.0f * 3);
+		mEnemy2.setPos(0, -200);
+	}
+	if (StageNumber == 4)
+	{
+		mEnemy1.setPos(552.0f - 48.0f * 3, 552.0f - 48.0f * 1);
+		mEnemy2.setPos(552.0f - 48.0f * 9, 552.0f - 48.0f * 1);
+	}
 }
 
 void Field::end()
@@ -229,10 +269,49 @@ void Field::end()
 
 SceneBase* Field::update()
 {
+	if (isFading())
+	{
+		bool isOut = isFadingOut();
+		SceneBase::updateFade();
+		// フェードアウト終了時にシーン切り替え
+		
+	}
+
+
 	clsDx();
+	int padState = GetJoypadInputState(DX_INPUT_KEY_PAD1);
+
+#ifdef _DEBUG
+	//FprintfDx("1->リスタート　2->ステージ切り替え");
+	if (CheckHitKey(KEY_INPUT_2))
+	{
+		
+		StageNumber = 2;
+	
+		init(); // 次のステージへ！！！！！！
+	}
+
+	if (CheckHitKey(KEY_INPUT_1))
+	{
+		init();
+	}
+	if (CheckHitKey(KEY_INPUT_2))
+	{
+
+		StageNumber = 2;
+
+		init(); // 次のステージへ！！！！！！
+	}
+	if (CheckHitKey(KEY_INPUT_3))
+	{
+		
+	
+	}
+#else
+
+#endif
 	
 
-	int padState = GetJoypadInputState(DX_INPUT_KEY_PAD1);
 	for (int y = 0; y < kFieldY; y++)
 	{
 		for (int x = 0; x < kFieldX; x++)
@@ -240,83 +319,104 @@ SceneBase* Field::update()
 			if (m_field[y][x] == kPlayer)
 			{
 				PlayerCount++;
-				if (PlayerCount >= 10)
+				
+				player.isKey = false;
+				m_field[y][x] = kEmpty;
+				// パッド(もしくはキーボード)からの入力を取得する
+				if (padState & PAD_INPUT_UP)
 				{
-					player.isKey = false;
-					m_field[y][x] = kEmpty;
-					// パッド(もしくはキーボード)からの入力を取得する
-					if (padState & PAD_INPUT_UP)
+					if (PlayerCount >= 10)
 					{
 						if (m_field[y - 1][x] == kMovingBlock)
 						{
-							if (!(m_field[y - 2][x] == kMovingBlock || m_field[y - 2][x] == kWall || m_field[y - 2][x] == kTreasure || m_field[y - 2][x] == kDoor))
+							if (!(m_field[y - 2][x] == kMovingBlock || m_field[y - 2][x] == kWall || m_field[y - 2][x] == kTreasure 
+								|| m_field[y - 2][x] == kTreasureOpen || m_field[y - 2][x] == kDoor || m_field[y - 2][x] == kHeart))
 							{
 								m_field[y - 1][x] = kEmpty;
 								m_field[y - 2][x] = kMovingBlock;
 							}
 						}
-						if (!(m_field[y - 1][x] == kWall || m_field[y - 1][x] == kMovingBlock || m_field[y - 1][x] == kDoor || m_field[y - 1][x] == kTreasure))
+						if (!(m_field[y - 1][x] == kWall || m_field[y - 1][x] == kMovingBlock 
+							|| m_field[y - 1][x] == kDoor || m_field[y - 1][x] == kTreasure ))
 						{
 							y --;
 						}
 						player.m_dirNo = 3;
 						player.isKey = true;
+						PlayerCount = 0;
 					}
-					else if (padState & PAD_INPUT_DOWN)
+				}
+				else if (padState & PAD_INPUT_DOWN)
+				{
+					if (PlayerCount >= 10)
 					{
 						if (m_field[y + 1][x] == kMovingBlock)
 						{
-							if (!(m_field[y + 2][x] == kMovingBlock || m_field[y + 2][x] == kWall))
+							if (!(m_field[y + 2][x] == kMovingBlock || m_field[y + 2][x] == kWall 
+								|| m_field[y + 2][x] == kHeart || m_field[y + 2][x] == kTreasureOpen || m_field[y + 2][x] == kTreasure))
 							{
 								m_field[y + 1][x] = kEmpty;
 								m_field[y + 2][x] = kMovingBlock;
 							}
 						}
-						if (!(m_field[y + 1][x] == kWall || m_field[y + 1][x] == kMovingBlock || m_field[y + 1][x] == kTreasure))
+						if (!(m_field[y + 1][x] == kWall || m_field[y + 1][x] == kMovingBlock 
+							|| m_field[y + 1][x] == kTreasure ))
 						{
 							y++;
 						}
 						player.m_dirNo = 0;
 						player.isKey = true;
+						PlayerCount = 0;
 					}
-					else if (padState & PAD_INPUT_LEFT)
+				}
+				else if (padState & PAD_INPUT_LEFT)
+				{
+					if (PlayerCount >= 10)
 					{
 						if (m_field[y][x - 1] == kMovingBlock)
 						{
-							if (!(m_field[y][x - 2] == kMovingBlock || m_field[y][x - 2] == kWall))
+							if (!(m_field[y][x - 2] == kMovingBlock || m_field[y][x - 2] == kWall || m_field[y][x - 2] == kHeart
+								|| m_field[y][x - 2] == kTreasure || m_field[y][x - 2] == kTreasureOpen))
 							{
 								m_field[y][x - 1] = kEmpty;
 								m_field[y][x - 2] = kMovingBlock;
 							}
 							
 						}
-						if (!(m_field[y][x - 1] == kWall || m_field[y][x - 1] == kMovingBlock || m_field[y][x - 1] == kTreasure))
+						if (!(m_field[y][x - 1] == kWall || m_field[y][x - 1] == kMovingBlock 
+							|| m_field[y][x - 1] == kTreasure ))
 						{
 							x--;
 						}
 						player.m_dirNo = 1;
 						player.isKey = true;
+						PlayerCount = 0;
 					}
-					else if (padState & PAD_INPUT_RIGHT)
+				}
+				else if (padState & PAD_INPUT_RIGHT)
+				{
+					if (PlayerCount >= 10)
 					{
 						if (m_field[y][x + 1] == kMovingBlock)
 						{
-							if (!(m_field[y][x + 2] == kMovingBlock || m_field[y][x + 2] == kWall))
+							if (!(m_field[y][x + 2] == kMovingBlock || m_field[y][x + 2] == kWall || m_field[y][x + 2] == kHeart
+								|| m_field[y][x + 2] == kTreasure || m_field[y][x + 2] == kTreasureOpen))
 							{
 								m_field[y][x + 1] = kEmpty;
 								m_field[y][x + 2] = kMovingBlock;
 							}
 						}
-						if (!(m_field[y][x + 1] == kWall || m_field[y][x + 1] == kMovingBlock || m_field[y][x + 1] == kTreasure))
+						if (!(m_field[y][x + 1] == kWall || m_field[y][x + 1] == kMovingBlock 
+							|| m_field[y][x + 1] == kTreasure ))
 						{
 							x++;
 						}
 						player.m_dirNo = 2;
+						PlayerCount = 0;
 						player.isKey = true;
 					}
-					m_field[y][x] = kPlayer;
-					PlayerCount = 0;
 				}
+				m_field[y][x] = kPlayer;
 			}
 		}
 	}
@@ -325,21 +425,16 @@ SceneBase* Field::update()
 
 	door.Update();
 
-	mEnemy.MoveX = 0.0f;
-	mEnemy.MoveY = 0.0f;
+	mEnemy1.MoveX = 0.0f;
+	mEnemy1.MoveY = 0.0f;
 	
-	mEnemy.Update();
+	mEnemy1.Update();
 
 	mEnemy2.MoveX = 0.0f;
 	mEnemy2.MoveY = 0.0f;
 
 	mEnemy2.Update();
 	
-	if (CheckHitKey(KEY_INPUT_1))
-	{
-		init();
-		return (new SceneTitle);
-	}
 	if (player.m_ExplosionAnimeNo == 7)
 	{
 		return(new GameOver);
@@ -348,8 +443,10 @@ SceneBase* Field::update()
 	HeartCount = 0;
 	TreasureCount = 0;
 	// 半分のサイズを算出
-	mEnemy.hsize = mEnemy.size * 0.5f;
+	mEnemy1.hsize = mEnemy1.size * 0.5f;
+	mEnemy2.hsize = mEnemy2.size * 0.5f;
 
+	
 
 	//////////////////////////////////////
 	// プレイヤーの当たり判定
@@ -363,12 +460,22 @@ SceneBase* Field::update()
 			{
 				HeartCount++;
 			}
+
 			if (m_field[y][x] == kTreasureOpen || m_field[y][x] == kTreasure)
 			{
 				TreasureCount++;
 			}
 		}
 	}
+	//printfDx("%d\n", HeartCount);
+	//printfDx("%d\n", HeartMax);
+
+	if (HeartMax > HeartCount)
+	{
+		PlaySoundFile("sound/Heart.wav",DX_PLAYTYPE_BACK);
+	}
+
+	HeartMax = HeartCount;
 
 	// ハートの数が０になったら、宝箱を開ける
 	if (HeartCount == 0)
@@ -411,13 +518,15 @@ SceneBase* Field::update()
 							door.m_animeNo = 0;
 							if (StageNumber == 1)
 							{
-								mEnemy.Number = 2;
 								StageNumber = 2;
 							}
 							else if (StageNumber == 2)
 							{
-								mEnemy.Number = 3;
 								StageNumber = 3;
+							}
+							else if (StageNumber == 3)
+							{
+								StageNumber = 4;
 							}
 							init(); // 次のステージへ！！！！！！
 						}
@@ -429,74 +538,98 @@ SceneBase* Field::update()
 
 
 	//////////////////////////////////////
-	// 敵の当たり判定
+	// 敵1の当たり判定
 	//////////////////////////////////////
 
 	// 後に左右移動成分だけでチェック
 	// 左下のチェック
-	EnemyBlockHitCheck(mEnemy.EnemyX - mEnemy.hsize, mEnemy.EnemyY + mEnemy.hsize, mEnemy.MoveX, mEnemy.Dummy);
+	Enemy1BlockHitCheck(mEnemy1.EnemyX - mEnemy1.hsize, mEnemy1.EnemyY + mEnemy1.hsize, mEnemy1.MoveX, mEnemy1.Dummy);
 
 	// 右下のチェック
-	EnemyBlockHitCheck(mEnemy.EnemyX + mEnemy.hsize, mEnemy.EnemyY + mEnemy.hsize, mEnemy.MoveX, mEnemy.Dummy);
+	Enemy1BlockHitCheck(mEnemy1.EnemyX + mEnemy1.hsize, mEnemy1.EnemyY + mEnemy1.hsize, mEnemy1.MoveX, mEnemy1.Dummy);
 
 	// 左上のチェック
-	EnemyBlockHitCheck(mEnemy.EnemyX - mEnemy.hsize, mEnemy.EnemyY - mEnemy.hsize, mEnemy.MoveX, mEnemy.Dummy);
+	Enemy1BlockHitCheck(mEnemy1.EnemyX - mEnemy1.hsize, mEnemy1.EnemyY - mEnemy1.hsize, mEnemy1.MoveX, mEnemy1.Dummy);
 
 	// 右上のチェック
-	EnemyBlockHitCheck(mEnemy.EnemyX + mEnemy.hsize, mEnemy.EnemyY - mEnemy.hsize, mEnemy.MoveX, mEnemy.Dummy);
+	Enemy1BlockHitCheck(mEnemy1.EnemyX + mEnemy1.hsize, mEnemy1.EnemyY - mEnemy1.hsize, mEnemy1.MoveX, mEnemy1.Dummy);
 
 	// 上下左右移動成分を加算
-	mEnemy.EnemyX += mEnemy.MoveX;
-	mEnemy.EnemyY += mEnemy.MoveY;
+	mEnemy1.EnemyX += mEnemy1.MoveX;
+	mEnemy1.EnemyY += mEnemy1.MoveY;
+
+	//////////////////////////////////////
+	// 敵2の当たり判定
+	//////////////////////////////////////
+
+	// 後に左右移動成分だけでチェック
+	// 左下のチェック
+	Enemy2BlockHitCheck(mEnemy2.EnemyX - mEnemy2.hsize, mEnemy2.EnemyY + mEnemy2.hsize, mEnemy2.MoveX, mEnemy2.Dummy);
+
+	// 右下のチェック
+	Enemy2BlockHitCheck(mEnemy2.EnemyX + mEnemy2.hsize, mEnemy2.EnemyY + mEnemy2.hsize, mEnemy2.MoveX, mEnemy2.Dummy);
+
+	// 左上のチェック
+	Enemy2BlockHitCheck(mEnemy2.EnemyX - mEnemy2.hsize, mEnemy2.EnemyY - mEnemy2.hsize, mEnemy2.MoveX, mEnemy2.Dummy);
+
+	// 右上のチェック
+	Enemy2BlockHitCheck(mEnemy2.EnemyX + mEnemy2.hsize, mEnemy2.EnemyY - mEnemy2.hsize, mEnemy2.MoveX, mEnemy2.Dummy);
+
+	// 上下左右移動成分を加算
+	mEnemy2.EnemyX += mEnemy2.MoveX;
+	mEnemy2.EnemyY += mEnemy2.MoveY;
+
+
+	return this;
 }
 
 
 
-int Field::EnemyBlockHitCheck(float enemyX, float enemyY, float& enemyMoveX, float& enemyMoveY)
+int Field::Enemy1BlockHitCheck(float enemyX, float enemyY, float& enemyMoveX, float& enemyMoveY)
 {
 	/////////////////////////////////
 	// 敵
 	/////////////////////////////////
 	// 移動量を足す
-	mEnemy.afterX = enemyX + enemyMoveX;
-	mEnemy.afterY = enemyY + enemyMoveY;
+	mEnemy1.afterX = enemyX + enemyMoveX;
+	mEnemy1.afterY = enemyY + enemyMoveY;
 
 	// 当たり判定のある壁に当たっているかチェック
-	if (GetChipParam(mEnemy.afterX, mEnemy.afterY) == WallHit || GetChipParam(mEnemy.afterX, mEnemy.afterY) == BooxHit)
+	if (GetChipParam(mEnemy1.afterX, mEnemy1.afterY) == WallHit || GetChipParam(mEnemy1.afterX, mEnemy1.afterY) == BooxHit)
 	{
 		// 当たっていたら壁から離す処理を行う
 		// ブロックの上下左右の座標を算出
 		// 左辺の X 座標
-		mEnemy.LeftX = (float)((int)mEnemy.afterX / kSize) * kSize;
+		mEnemy1.LeftX = (float)((int)mEnemy1.afterX / kSize) * kSize;
 		// 右辺の X 座標
-		mEnemy.RightX = (float)((int)mEnemy.afterX / kSize + 1) * kSize;
+		mEnemy1.RightX = (float)((int)mEnemy1.afterX / kSize + 1) * kSize;
 		// 上辺の Y 座標
-		mEnemy.TopY = (float)((int)mEnemy.afterY / kSize) * kSize;
+		mEnemy1.TopY = (float)((int)mEnemy1.afterY / kSize) * kSize;
 		// 下辺の Y 座標
-		mEnemy.BottomY = (float)((int)mEnemy.afterY / kSize + 1) * kSize;
+		mEnemy1.BottomY = (float)((int)mEnemy1.afterY / kSize + 1) * kSize;
 
 		// 左辺に当たっていた場合
-		if (mEnemy.enemyRightMove == false)
+		if (mEnemy1.enemyRightMove == false)
 		{
 			// 移動量を補正する
-			mEnemy.MoveX = mEnemy.RightX - enemyX + 1.0f;
-			mEnemy.enemyRightMove = true;
+			mEnemy1.MoveX = mEnemy1.RightX - enemyX + 1.0f;
+			mEnemy1.enemyRightMove = true;
 			// 左辺に当たったと返す
 			return 11;
 		}
 		// 右辺に当たっていた場合
-		if (mEnemy.enemyRightMove == true)
+		if (mEnemy1.enemyRightMove == true)
 		{
 			// 移動量を補正する
-			mEnemy.MoveX = mEnemy.LeftX - enemyX - 1.0f;
-			mEnemy.enemyRightMove = false;
+			mEnemy1.MoveX = mEnemy1.LeftX - enemyX - 1.0f;
+			mEnemy1.enemyRightMove = false;
 			// 右辺に当たったと返す
 			return 12;
 		}
 		return 5;
 	}
 	//　プレイヤーと敵の当たり判定
-	if (GetChipParam(mEnemy.afterX, mEnemy.afterY) == playerHit)
+	if (GetChipParam(mEnemy1.afterX, mEnemy1.afterY) == playerHit)
 	{
 		// プレイヤーが爆発する
 		if (player.ExplosionCount == 0)
@@ -506,7 +639,60 @@ int Field::EnemyBlockHitCheck(float enemyX, float enemyY, float& enemyMoveX, flo
 	}
 	return 0;
 }
+int Field::Enemy2BlockHitCheck(float enemyX, float enemyY, float& enemyMoveX, float& enemyMoveY)
+{
+	/////////////////////////////////
+	// 敵
+	/////////////////////////////////
+	// 移動量を足す
+	mEnemy2.afterX = enemyX + enemyMoveX;
+	mEnemy2.afterY = enemyY + enemyMoveY;
 
+	// 当たり判定のある壁に当たっているかチェック
+	if (GetChipParam(mEnemy2.afterX, mEnemy2.afterY) == WallHit || GetChipParam(mEnemy2.afterX, mEnemy2.afterY) == BooxHit)
+	{
+		// 当たっていたら壁から離す処理を行う
+		// ブロックの上下左右の座標を算出
+		// 左辺の X 座標
+		mEnemy2.LeftX = (float)((int)mEnemy2.afterX / kSize) * kSize;
+		// 右辺の X 座標
+		mEnemy2.RightX = (float)((int)mEnemy2.afterX / kSize + 1) * kSize;
+		// 上辺の Y 座標
+		mEnemy2.TopY = (float)((int)mEnemy2.afterY / kSize) * kSize;
+		// 下辺の Y 座標
+		mEnemy2.BottomY = (float)((int)mEnemy2.afterY / kSize + 1) * kSize;
+
+		// 左辺に当たっていた場合
+		if (mEnemy2.enemyRightMove == false)
+		{
+			// 移動量を補正する
+			mEnemy2.MoveX = mEnemy2.RightX - enemyX + 1.0f;
+			mEnemy2.enemyRightMove = true;
+			// 左辺に当たったと返す
+			return 11;
+		}
+		// 右辺に当たっていた場合
+		if (mEnemy2.enemyRightMove == true)
+		{
+			// 移動量を補正する
+			mEnemy2.MoveX = mEnemy2.LeftX - enemyX - 1.0f;
+			mEnemy2.enemyRightMove = false;
+			// 右辺に当たったと返す
+			return 12;
+		}
+		return 5;
+	}
+	//　プレイヤーと敵の当たり判定
+	if (GetChipParam(mEnemy2.afterX, mEnemy2.afterY) == playerHit)
+	{
+		// プレイヤーが爆発する
+		if (player.ExplosionCount == 0)
+		{
+			player.Explosion = false;
+		}
+	}
+	return 0;
+}
 
 //-----------------------------------------
 // マップチップの値を取得する関数
@@ -540,9 +726,6 @@ int Field::GetChipParam(float X, float Y)
 
 void Field::draw()
 {
-	printfDx("%d\n", player.ExplosionCount);
-
-
 	int kWallGraphic = LoadGraph("data/Wall.png");
 	int kBooxGraphic = LoadGraph("data/Boox.png");
 	int kHeartGraphic = LoadGraph("data/Heart.png");
@@ -550,7 +733,6 @@ void Field::draw()
 	int kTreasureGraphic = LoadGraph("data/Treasure.png");
 	int kTreasureOpenGraphic = LoadGraph("data/TreasureOpen.png");
 	int kTreasureOpenEmptyGraphic = LoadGraph("data/TreasureOpenEmpty.png");
-
 
 	// マップの描画
 	for (int y = 0; y < kFieldY; y++)
@@ -600,7 +782,7 @@ void Field::draw()
 						m_fieldX + x * kSize + 48, m_fieldY + y * kSize + 48, kTreasureOpenEmptyGraphic, TRUE);
 				}
 			}
-
+			// キャラクタの描画
 			if (m_field[y][x] == kPlayer)
 			{
 				DrawGraph(m_fieldX + x * kSize, m_fieldY + y * kSize, kFloorGraphic, TRUE);
@@ -617,16 +799,14 @@ void Field::draw()
 						m_fieldX + x * kSize + 50, m_fieldY + y * kSize + 50,
 						player.m_PlayerHandle[player.m_PlayerAnimeNo], TRUE);
 				}
-
 			}
 		}
 	}
-	
-	//// キャラクタの描画
-	//player.Draw();
-	
 	// 動く敵の描画
-	mEnemy.Draw();
+	mEnemy1.Draw();
 
-			
+	mEnemy2.Draw();
+
+
+	SceneBase::drawFade();
 }

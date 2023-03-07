@@ -2,14 +2,13 @@
 #include "DxLib.h"
 #include "game.h"
 #include "Field.h"
-#include "GameMain.h"
 #include "SceneTitle.h"
 
 namespace
 {
 	// 表示する文字列
-	const char* const kTitleText = "ゲームオーバー";
-	const char* const kGuideText = "Aを押してください";
+	const char* const kTitleText = "GAMEOVER";
+	const char* const kGuideText = "A->Return";
 	// 文字列点滅
 	constexpr int kTextDispFrame = 45;
 	constexpr int kTextHideFrame = 15;
@@ -28,8 +27,6 @@ void GameOver::init()
 {
 	m_textBlinkFrame = 0;
 	SetFontSize(32);
-	
-	//m_hBg = LoadGraph("Data/titleBg1.jpg");
 }
 
 void GameOver::end()
@@ -88,15 +85,15 @@ SceneBase* GameOver::update()
 
 void GameOver::draw()
 {
-	DrawGraph(0, 0, m_hBg, false);
-
+	SetFontSize(64);
 	int width = GetDrawStringWidth(kTitleText, static_cast<int>(strlen(kTitleText)));
 	DrawString(Game::kScreenWidth / 2 - width / 2, 160, kTitleText, kTitleFontColor);
 
 	if (m_textBlinkFrame < kTextDispFrame)
 	{
+		SetFontSize(46);
 		width = GetDrawStringWidth(kGuideText, static_cast<int>(strlen(kGuideText)));
-		DrawString(Game::kScreenWidth / 2 - width / 2, 280, kGuideText, kFontColor);
+		DrawString(Game::kScreenWidth / 2 - width / 2, 580, kGuideText, kFontColor);
 	}
 
 	SceneBase::drawFade();

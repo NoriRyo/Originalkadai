@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Field.h"
 #include "SceneBase.h"
 
 class GameOver : public SceneBase
@@ -24,4 +24,6 @@ private:
 
 	// テキスト点滅用フレームカウント
 	int m_textBlinkFrame;
+
+	Field m_field;
 };

@@ -13,7 +13,9 @@ namespace
 
 }
 
-Player::Player()
+Player::Player()	:
+	m_ExplosionHandle(),
+	m_PlayerHandle()
 {
 	// èâä˙âª
 	for (auto& handle : m_PlayerHandle)
@@ -31,7 +33,6 @@ Player::Player()
 	m_ExplosionAnimeNo = 0;
 	m_ExplosionAnimeFrame = 0;
 
-
 	m_dirNo = 0;
 	m_ExplosionDirNo = 0;
 }
@@ -42,8 +43,6 @@ Player::~Player()
 
 void Player::init()
 {
-	Dummy = 0.0f;
-
 	m_PlayerAnimeNo = 0;
 	m_PlayerAnimeFrame = 0;
 

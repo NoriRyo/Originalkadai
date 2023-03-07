@@ -2,14 +2,12 @@
 #include "game.h"
 #include "SceneTitle.h"
 #include "Field.h"
-#include "GameMain.h"
-#include "Door.h"
 
 namespace
 {
 	// 表示する文字列
-	const char* const kTitleText = "ゲームタイトル";
-	const char* const kGuideText = "Aを押してください";
+	const char* const kTitleText = "Adventure Of Cat";
+	const char* const kGuideText = "Start(A)";
 	// 文字列点滅
 	constexpr int kTextDispFrame = 45;
 	constexpr int kTextHideFrame = 15;
@@ -19,45 +17,67 @@ namespace
 
 	const int kFontColor = GetColor(255, 255, 255);
 
-	const char* const kDoorGraphicFilename = "data/door.png";
-
 }
 
 void SceneTitle::init()
 {
+	PlaySoundFile("sound/BGM.wav", DX_PLAYTYPE_BACK + DX_PLAYTYPE_LOOP);
+	m_backgroundGraphic0 = LoadGraph("data/title/background0.png");
+	m_backgroundGraphic1 = LoadGraph("data/title/background1.png");
+	m_backgroundGraphic2 = LoadGraph("data/title/background2.png");
+	m_backgroundGraphic3 = LoadGraph("data/title/background3.png");
+	m_backgroundGraphic4 = LoadGraph("data/title/background4.png");
+	m_backgroundGraphic5 = LoadGraph("data/title/background5.png");
+	m_backgroundGraphic6 = LoadGraph("data/title/background6.png");
+	m_backgroundGraphic7 = LoadGraph("data/title/background7.png");
 	m_textBlinkFrame = 0;
-	SetFontSize(32);
-	for (auto& doorHandle : m_hDoorGraphic)
-	{
-		doorHandle = -1;
-	}
-	// ドア
-	LoadDivGraph(kDoorGraphicFilename, Door::kDoorGraphicDivNum,
-		Door::kGraphicDivX, Door::kGraphicDivY,
-		Door::kGraphicSizeX, Door::kGraphicSizeY, m_hDoorGraphic);
-
-	for (int i = 0; i < Door::kDoorGraphicDivNum; i++)
-	{
-		door.setHandle(i, m_hDoorGraphic[i]);
-	}
-	door.init();
-	//m_hBg = LoadGraph("Data/titleBg1.jpg");
+	m_handle = 0;
+	m_animeNo = 0;
+	m_CountFrame = 0;
 }
 
 void SceneTitle::end()
 {
 	SetFontSize(16);
-	for (auto& handle : m_hDoorGraphic)
-	{
-		DeleteGraph(m_hDoorGraphic[2]);
-	}
 }
 
 SceneBase* SceneTitle::update()
 {
 	int padState = GetJoypadInputState(DX_INPUT_KEY_PAD1);
 
-	door.Update();
+	if (m_animeNo == 0)
+	{
+		m_handle = m_backgroundGraphic0;
+	}
+	if (m_animeNo == 1)
+	{
+		m_handle = m_backgroundGraphic1;
+	}
+	if (m_animeNo == 2)
+	{
+		m_handle = m_backgroundGraphic2;
+	}
+	if (m_animeNo == 3)
+	{
+		m_handle = m_backgroundGraphic3;
+	}
+	if (m_animeNo == 4)
+	{
+		m_handle = m_backgroundGraphic4;
+	}
+	if (m_animeNo == 5)
+	{
+		m_handle = m_backgroundGraphic5;
+	}
+	if (m_animeNo == 6)
+	{
+		m_handle = m_backgroundGraphic6;
+	}
+	if (m_animeNo >= 7)
+	{
+		m_handle = m_backgroundGraphic7;
+	}
+	
 
 	if (isFading())
 	{
@@ -66,7 +86,6 @@ SceneBase* SceneTitle::update()
 		// フェードアウト終了時にシーン切り替え
 		if (!isFading() && isOut)
 		{
-			door.m_animeNo = 0;
 			return (new Field);
 		}
 	}
@@ -80,18 +99,26 @@ SceneBase* SceneTitle::update()
 	{
 		if (padState & PAD_INPUT_1)
 		{
-			// 扉を開ける
-			if (door.OpenCount == 0)
+			pressed = false;
+		}
+		if (pressed == false)
+		{
+			// 扉を開く
+			m_CountFrame++;
+			if (m_CountFrame >= 12)
 			{
-				door.OpenDoor = false;
-				
+				if (!(m_animeNo >= 6))
+				{
+					m_animeNo++;
+					m_CountFrame = 0;
+				}
+
 			}
 		}
-		if (door.m_animeNo == 13)
+		if (m_animeNo >= 6)
 		{
 			// フェードアウト開始
 			startFadeOut();
-			
 		}
 	}
 	return this;
@@ -99,19 +126,22 @@ SceneBase* SceneTitle::update()
 
 void SceneTitle::draw()
 {
+	
+	DrawGraph(0, 0, m_handle, false);
+	
 	int Expansion = 150;	// 拡大
-	DrawExtendGraph(Game::kScreenWidth / 2 - Expansion, 460 - Expansion,
-		Game::kScreenWidth / 2 + Expansion, 460 + Expansion, door.m_handle[door.m_animeNo], true);
-
-
+	//ChangeFont("Algerian");
+	ChangeFont("MS Serif");
+	SetFontSize(64);
 	int width = GetDrawStringWidth(kTitleText, static_cast<int>(strlen(kTitleText)));
 	DrawString(Game::kScreenWidth / 2 - width / 2, 160, kTitleText, kTitleFontColor);
 
 	if (m_textBlinkFrame < kTextDispFrame)
 	{
+		SetFontSize(46);
 		width = GetDrawStringWidth(kGuideText, static_cast<int>(strlen(kGuideText)));
-		DrawString(Game::kScreenWidth / 2 - width / 2, 280, kGuideText, kFontColor);
+		DrawString(Game::kScreenWidth / 2 - width / 2, 680, kGuideText, kFontColor);
 	}
-
+	
 	SceneBase::drawFade();
 }

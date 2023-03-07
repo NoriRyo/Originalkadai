@@ -1,14 +1,12 @@
 #pragma once
 
 #include "SceneBase.h"
-#include "Door.h"
 
 class SceneTitle : public SceneBase
 {
 public:
 	SceneTitle()
 	{
-		m_hBg = -1;
 		m_textBlinkFrame = 0;
 	}
 	virtual ~SceneTitle() {}
@@ -20,14 +18,22 @@ public:
 	virtual void draw() override;
 private:
 	// タイトル背景
-	int m_hBg;
-
+	int m_backgroundGraphic0;
+	int m_backgroundGraphic1;
+	int m_backgroundGraphic2;
+	int m_backgroundGraphic3;
+	int m_backgroundGraphic4;
+	int m_backgroundGraphic5;
+	int m_backgroundGraphic6;
+	int m_backgroundGraphic7;
+	int m_handle;
+	//　表示する番号
+	int m_animeNo;	
 	// テキスト点滅用フレームカウント
 	int m_textBlinkFrame;
+	// 押されたかどうか
+	int pressed = true;
 
+	int m_CountFrame;
 
-	// 扉のグラフィックハンドル
-	int m_hDoorGraphic[Door::kDoorGraphicDivNum];
-	// 扉
-	Door door;
 };

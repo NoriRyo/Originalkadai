@@ -1,6 +1,4 @@
 #pragma once
-//#include "Field.h"
-//class Field;
 class MovingEnemy
 {
 public:
@@ -21,14 +19,11 @@ public:
 	float MoveY;
 
 	// 敵の位置
-	int EnemyX;
-	int EnemyY;
+	float EnemyX;
+	float EnemyY;
 
 	// 敵の速度
 	float speed;
-
-	// ステージの番号
-	float Number = 1;
 
 	// 敵の向き
 	float enemyRightMove = false;
@@ -49,7 +44,5 @@ public:
 private:
 	// フレームカウント
 	int m_EnemyFrameCount;
-
-	//Field* m_pField;
 };
 
