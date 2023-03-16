@@ -49,6 +49,8 @@ public:
 	int Explosion = true;
 private:
 
+	// 爆発サウンドのハンドル
+	//int ExplosionSHandle;
 	// キャラクターのアニメーション
 	int m_PlayerAnimeFrame;
 

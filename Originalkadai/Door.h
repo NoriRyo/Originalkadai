@@ -37,5 +37,7 @@ public:
 	int m_animeFrame;
 	int m_dirNo;	// 進行方向
 private:
+	// サウンドハンドル
+	int DoorSHandle;
 };
 

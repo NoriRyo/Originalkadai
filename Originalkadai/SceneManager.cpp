@@ -2,6 +2,7 @@
 #include "SceneTitle.h"
 #include "Field.h"
 #include <cassert>
+#include "DxLib.h"
 
 
 SceneManager::SceneManager()

@@ -71,15 +71,18 @@ void Player::Update()
 	m_PlayerAnimeNo = m_dirNo * kPlayerGraphicDivX + PlayertenpAnimeNo;
 
 
+	
 	// 爆発アニメーション
 	if (Explosion == false)
 	{
+		//PlaySoundMem(ExplosionSHandle, DX_PLAYTYPE_BACK);
 		m_ExplosionAnimeFrame++;
 		if (m_ExplosionAnimeFrame >= kExplosionGraphicDivX * kAinmeChangeFrame)
 		{
 			m_ExplosionAnimeFrame = 0;
 			if (m_ExplosionAnimeNo == 7)
 			{
+				//DeleteSoundMem(ExplosionSHandle);
 				m_ExplosionAnimeNo = 7;
 				ExplosionCount = +1;
 				Explosion = true;
@@ -90,6 +93,7 @@ void Player::Update()
 			int ExplosiontenpAnimeNo = m_ExplosionAnimeFrame / kAinmeChangeFrame;
 			m_ExplosionAnimeNo = m_ExplosionDirNo * kExplosionGraphicDivX + ExplosiontenpAnimeNo;
 		}
+
 	}
 }
 

@@ -32,6 +32,26 @@ public:
 	int StageNumber = 1;
 
 private:
+	int background0;
+	int background1;
+	int background2;
+	int background3;
+	int background4;
+	int background5;
+	// BGMのハンドル
+	int BGMHandle;
+	// 歩きサウンドのハンドル
+	int WalkSHandle;
+	// ハートサウンドのハンドル
+	int HeartSHandle;
+	// キーサウンドのハンドル
+	int KeySHandle;
+	// 押すサウンドのハンドル
+	int attackSHandle;
+	// 爆発サウンドのハンドル
+	int ExplosionSHandle;
+	// 音量
+	int Volume;
 	// 盤面の表示左上座標
 	int m_fieldX;
 	int m_fieldY;

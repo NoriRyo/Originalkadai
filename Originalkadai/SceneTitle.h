@@ -36,4 +36,9 @@ private:
 
 	int m_CountFrame;
 
+	// ƒTƒEƒ“ƒh
+	int BGMHandle;
+	int TitleSHandle;
+	// ‰¹—Ê
+	int TitleVolume;
 };

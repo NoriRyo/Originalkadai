@@ -8,7 +8,7 @@ namespace
 {
 	// 表示する文字列
 	const char* const kTitleText = "GAMEOVER";
-	const char* const kGuideText = "A->Return";
+	const char* const kGuideText = "A->TITLE　B->Return";
 	// 文字列点滅
 	constexpr int kTextDispFrame = 45;
 	constexpr int kTextHideFrame = 15;
@@ -27,6 +27,9 @@ void GameOver::init()
 {
 	m_textBlinkFrame = 0;
 	SetFontSize(32);
+	// サウンド
+	ENDBGMHandle = LoadSoundMem("sound/ENDBGM.wav");
+	PlaySoundMem(ENDBGMHandle, DX_PLAYTYPE_LOOP);
 }
 
 void GameOver::end()
@@ -45,6 +48,7 @@ SceneBase* GameOver::update()
 		// フェードアウト終了時にシーン切り替え
 		if (!isFading() && isOut)
 		{
+			DeleteSoundMem(ENDBGMHandle);
 			if (Titleback == false)
 			{
 				// タイトルに戻る

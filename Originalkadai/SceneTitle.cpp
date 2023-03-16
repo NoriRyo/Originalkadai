@@ -9,7 +9,7 @@ namespace
 	const char* const kTitleText = "Adventure Of Cat";
 	const char* const kGuideText = "Start(A)";
 	// 文字列点滅
-	constexpr int kTextDispFrame = 45;
+	constexpr int kTextDispFrame = 64;
 	constexpr int kTextHideFrame = 15;
 
 	// 文字色
@@ -21,7 +21,6 @@ namespace
 
 void SceneTitle::init()
 {
-	PlaySoundFile("sound/BGM.wav", DX_PLAYTYPE_BACK + DX_PLAYTYPE_LOOP);
 	m_backgroundGraphic0 = LoadGraph("data/title/background0.png");
 	m_backgroundGraphic1 = LoadGraph("data/title/background1.png");
 	m_backgroundGraphic2 = LoadGraph("data/title/background2.png");
@@ -34,6 +33,14 @@ void SceneTitle::init()
 	m_handle = 0;
 	m_animeNo = 0;
 	m_CountFrame = 0;
+	// サウンド
+	BGMHandle = LoadSoundMem("sound/BGM.wav");
+	TitleSHandle = LoadSoundMem("sound/Title.wav");
+	//　音量
+	TitleVolume = 100;
+	ChangeVolumeSoundMem(255 * 75 / 100, BGMHandle); //ボリューム調整
+
+	PlaySoundMem(BGMHandle, DX_PLAYTYPE_LOOP);
 }
 
 void SceneTitle::end()
@@ -100,6 +107,7 @@ SceneBase* SceneTitle::update()
 		if (padState & PAD_INPUT_1)
 		{
 			pressed = false;
+			PlaySoundMem(TitleSHandle, DX_PLAYTYPE_BACK);
 		}
 		if (pressed == false)
 		{
@@ -115,10 +123,16 @@ SceneBase* SceneTitle::update()
 
 			}
 		}
-		if (m_animeNo >= 6)
+		if (m_animeNo >= 1)
 		{
-			// フェードアウト開始
-			startFadeOut();
+			TitleVolume--;
+			ChangeVolumeSoundMem(255 * TitleVolume / 100, TitleSHandle);
+			ChangeVolumeSoundMem(255 * TitleVolume / 100, BGMHandle);
+			if (TitleVolume == 20)
+			{
+				// フェードアウト開始
+				startFadeOut();
+			}
 		}
 	}
 	return this;
@@ -126,21 +140,34 @@ SceneBase* SceneTitle::update()
 
 void SceneTitle::draw()
 {
-	
+
+	int m_backgroundGraphicUP = LoadGraph("data/title/backgroundUP.png");
+	int button = LoadGraph("data/button.png");
+	int button1 = LoadGraph("data/button1.png");
 	DrawGraph(0, 0, m_handle, false);
-	
+	DrawGraph(0, 0, m_backgroundGraphicUP, false);
 	int Expansion = 150;	// 拡大
 	//ChangeFont("Algerian");
 	ChangeFont("MS Serif");
+	
+	//int fontHandle = CreateFontToHandle("Showcard Gothic", 64, -1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 	SetFontSize(64);
 	int width = GetDrawStringWidth(kTitleText, static_cast<int>(strlen(kTitleText)));
-	DrawString(Game::kScreenWidth / 2 - width / 2, 160, kTitleText, kTitleFontColor);
+	//DrawString(Game::kScreenWidth / 2 - width / 2, 160, kTitleText, kTitleFontColor);
 
-	if (m_textBlinkFrame < kTextDispFrame)
+	int GuideWidth = GetDrawStringWidth(kGuideText, static_cast<int>(strlen(kGuideText)));
+	if (pressed == true)
 	{
-		SetFontSize(46);
-		width = GetDrawStringWidth(kGuideText, static_cast<int>(strlen(kGuideText)));
-		DrawString(Game::kScreenWidth / 2 - width / 2, 680, kGuideText, kFontColor);
+		if (m_textBlinkFrame < kTextDispFrame)
+		{
+			SetFontSize(46);
+			DrawString(Game::kScreenWidth / 2 - GuideWidth / 2, 680, kGuideText, kFontColor);
+			DrawExtendGraph(Game::kScreenWidth / 2 + GuideWidth / 3, 680, (Game::kScreenWidth / 2 + GuideWidth / 3) + 64, 680 + 64, button, true);
+		}
+		else
+		{
+			DrawExtendGraph(Game::kScreenWidth / 2 + GuideWidth / 3, 680, (Game::kScreenWidth / 2 + GuideWidth / 3) + 64, 680 + 64, button1, true);
+		}
 	}
 	
 	SceneBase::drawFade();

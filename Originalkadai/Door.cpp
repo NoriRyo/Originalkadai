@@ -25,6 +25,7 @@ Door::Door()
 	m_animeNo = 0;
 	m_animeFrame = 0;
 	m_dirNo = 0;
+	DoorSHandle = LoadSoundMem("sound/Title.wav");
 }
 
 Door::~Door()
@@ -38,13 +39,14 @@ void Door::init()
 	m_dirNo = 0;
 	OpenDoor = true;
 	OpenCount = 0;
-	
+	ChangeVolumeSoundMem(255 * 50 / 100, DoorSHandle);
 }
 
 void Door::Update()
 {
 	if (OpenDoor == false)
 	{
+		PlaySoundMem(DoorSHandle, DX_PLAYTYPE_BACK);
 		//printfDx("”à\n");
 		m_animeFrame++;
 		if (m_animeFrame >= kGraphicDivX * kAinmeChangeFrame)
@@ -52,17 +54,16 @@ void Door::Update()
 			m_animeFrame = 0;
 			if (m_animeNo == 13)
 			{
-				//printfDx("”àŠJ‚¢‚½\n");
 				m_animeNo = 13;
 				OpenCount =+1;
 				OpenDoor = true;
+				StopSoundMem(DoorSHandle);
 			}
 		}
 		if (OpenDoor == false)
 		{
 			int tenpAnimeNo = m_animeFrame / kAinmeChangeFrame;
 				m_animeNo = m_dirNo * kGraphicDivX + tenpAnimeNo;
-
 		}
 	}
 	

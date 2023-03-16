@@ -13,4 +13,6 @@ public:
 	void draw();
 private:
 	SceneBase* m_pScene;
+
+	
 };
