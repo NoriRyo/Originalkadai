@@ -67,7 +67,7 @@ char m_field2[13][13] =
 
 	{5, 1,5,5, 5,1,1,1, 5,0,0,0, 5},
 	{5, 0,0,0, 1,0,1,0, 0,5,5,1, 5},
-	{5, 0,0,1, 0,0,0,0, 0,0,0,0, 5},
+	{5, 0,0,1, 1,0,0,0, 0,0,0,0, 5},
 	{5, 5,1,0, 1,5,5,5, 1,0,5,5, 5},
 
 	{5, 0,0,0, 0,0,0,0, 0,0,1,0, 5},
@@ -85,7 +85,7 @@ char m_field3[13][13] =
 
 	{5, 0,0,0, 2,5,0,5, 2,0,0,0, 5},
 	{5, 1,0,0, 0,0,0,0, 0,0,0,1, 5},
-	{5, 0,0,0, 0,1,0,1, 0,0,0,0, 5},
+	{5, 0,0,0, 1,1,0,1, 1,0,0,0, 5},
 
 	{5, 5,5,5, 5,0,1,0, 5,5,5,5, 5},
 	{5, 0,1,0, 0,0,1,0, 1,0,1,0, 5},
@@ -398,6 +398,12 @@ void Field::end()
 	{
 		DeleteGraph(m_hDoorGraphic[2]);
 	}
+	DeleteSoundMem(BGMHandle);
+	DeleteSoundMem(WalkSHandle);
+	DeleteSoundMem(HeartSHandle);
+	DeleteSoundMem(KeySHandle);
+	DeleteSoundMem(attackSHandle);
+	DeleteSoundMem(ExplosionSHandle);
 }
 
 SceneBase* Field::update()
@@ -451,12 +457,14 @@ SceneBase* Field::update()
 #else
 	
 #endif
-	if (player.m_ExplosionAnimeNo == 0)
-	{
-		if (padState & PAD_INPUT_2)
+	if (padState & PAD_INPUT_2)
+	{		
+		if (player.Explosion == true)
 		{
 			DeleteSoundMem(BGMHandle);
+			
 			init();
+			
 		}
 	}
 	if (padState & PAD_INPUT_8)
@@ -487,7 +495,11 @@ SceneBase* Field::update()
 				player.isKey = false;
 				m_field[y][x] = kEmpty;
 				// パッド(もしくはキーボード)からの入力を取得する
-				if (padState & PAD_INPUT_UP)
+				if (player.Explosion == false)
+				{
+
+				}
+				else if (padState & PAD_INPUT_UP)
 				{
 					player.isKey = true;
 					if (PlayerCount >= 10)
