@@ -2,6 +2,7 @@
 #include "game.h"
 #include "SceneTitle.h"
 #include "Field.h"
+#include "CharacterSelect.h"
 
 namespace
 {
@@ -16,6 +17,8 @@ namespace
 	const int kTitleFontColor = GetColor(255, 0, 0);
 
 	const int kFontColor = GetColor(255, 255, 255);
+
+	int isCharacterSelect = true;
 
 }
 
@@ -50,8 +53,9 @@ void SceneTitle::end()
 
 SceneBase* SceneTitle::update()
 {
-	int padState = GetJoypadInputState(DX_INPUT_KEY_PAD1);
+	//m_field.
 
+	int padState = GetJoypadInputState(DX_INPUT_KEY_PAD1);
 	if (m_animeNo == 0)
 	{
 		m_handle = m_backgroundGraphic0;
@@ -93,7 +97,16 @@ SceneBase* SceneTitle::update()
 		// フェードアウト終了時にシーン切り替え
 		if (!isFading() && isOut)
 		{
-			return (new Field);
+			if (isCharacterSelect == false)
+			{
+				isCharacterSelect = true;
+				return (new CharacterSelect);
+			}
+			else
+			{
+				m_field.StageNumber = 1;
+				return (new Field);
+			}
 		}
 	}
 	// テキストの点滅
@@ -109,6 +122,12 @@ SceneBase* SceneTitle::update()
 			pressed = false;
 			PlaySoundMem(TitleSHandle, DX_PLAYTYPE_BACK);
 		}
+		//if (padState & PAD_INPUT_2)
+		//{
+		//	isCharacterSelect = false;
+		//	// フェードアウト開始
+		//	startFadeOut();
+		//}
 		if (pressed == false)
 		{
 			// 扉を開く

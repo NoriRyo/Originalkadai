@@ -8,7 +8,7 @@ namespace
 {
 	// 表示する文字列
 	const char* const kTitleText = "GAMEOVER";
-	const char* const kGuideText = "A->TITLE　B->Return";
+	const char* const kGuideText = "A->Return";
 	// 文字列点滅
 	constexpr int kTextDispFrame = 45;
 	constexpr int kTextHideFrame = 15;
@@ -18,9 +18,7 @@ namespace
 
 	const int kFontColor = GetColor(255, 255, 255);
 
-	int Titleback = true;
-
-	int Fieldback = true;
+	
 
 }
 void GameOver::init()
@@ -30,6 +28,7 @@ void GameOver::init()
 	// サウンド
 	ENDBGMHandle = LoadSoundMem("sound/ENDBGM.wav");
 	PlaySoundMem(ENDBGMHandle, DX_PLAYTYPE_LOOP);
+	
 }
 
 void GameOver::end()
@@ -49,16 +48,16 @@ SceneBase* GameOver::update()
 		if (!isFading() && isOut)
 		{
 			DeleteSoundMem(ENDBGMHandle);
-			if (Titleback == false)
-			{
-				// タイトルに戻る
-				Titleback = true;
-				return (new SceneTitle);
-			}
+			//if (Titleback == false)
+			//{
+			//	// タイトルに戻る
+			//	Titleback = true;
+			//	return (new SceneTitle);
+			//}
 			if (Fieldback == false)
 			{
-				Fieldback = true;
 				// フィールド（ゲーム）に戻る
+				Fieldback = true;
 				return (new Field);
 			}
 		}
@@ -73,16 +72,16 @@ SceneBase* GameOver::update()
 	{
 		if (padState & PAD_INPUT_1)
 		{
-			Titleback = false;
-			// フェードアウト開始
-			startFadeOut();
-		}
-		if (padState & PAD_INPUT_2)
-		{
 			Fieldback = false;
+			//Titleback = false;
 			// フェードアウト開始
 			startFadeOut();
 		}
+		//if (padState & PAD_INPUT_2)
+		//{
+		//	// フェードアウト開始
+		//	startFadeOut();
+		//}
 	}
 	return this;
 }
@@ -99,6 +98,5 @@ void GameOver::draw()
 		width = GetDrawStringWidth(kGuideText, static_cast<int>(strlen(kGuideText)));
 		DrawString(Game::kScreenWidth / 2 - width / 2, 580, kGuideText, kFontColor);
 	}
-
 	SceneBase::drawFade();
 }

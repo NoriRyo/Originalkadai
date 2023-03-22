@@ -152,6 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CharacterSelect.cpp" />
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Field.cpp" />
     <ClCompile Include="GameClear.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CharacterSelect.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Field.h" />
     <ClInclude Include="Game.h" />

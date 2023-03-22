@@ -1,6 +1,8 @@
 #pragma once
 
 #include "SceneBase.h"
+#include "GameOver.h"
+#include "Field.h"
 
 class SceneTitle : public SceneBase
 {
@@ -8,6 +10,22 @@ public:
 	SceneTitle()
 	{
 		m_textBlinkFrame = 0;
+		m_backgroundGraphic0= 0;
+		m_backgroundGraphic1= 0;
+		m_backgroundGraphic2= 0;
+		m_backgroundGraphic3= 0;
+		m_backgroundGraphic4= 0;
+		m_backgroundGraphic5= 0;
+		m_backgroundGraphic6= 0;
+		m_backgroundGraphic7= 0;
+		m_handle= 0;
+		m_animeNo= 0;
+		m_textBlinkFrame= 0;
+		pressed = true;
+		m_CountFrame= 0;
+		BGMHandle= 0;
+		TitleSHandle= 0;
+		TitleVolume= 0;
 	}
 	virtual ~SceneTitle() {}
 
@@ -41,4 +59,8 @@ private:
 	int TitleSHandle;
 	// ‰¹—Ê
 	int TitleVolume;
+
+	GameOver gameOver;
+
+	Field m_field;
 };

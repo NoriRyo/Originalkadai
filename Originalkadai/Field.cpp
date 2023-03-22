@@ -11,6 +11,7 @@
 
 #define kSize (48)
 
+GameOver gameOver;
  //デバック
 //char m_field1[13][13] =
 //{
@@ -133,7 +134,15 @@ namespace
 	constexpr int kPlayer = 10;		// プレイヤー
 	
 	
-	const char* const kPlayarGraphicFilename = "data/player3.png";
+	const char* const kPlayarGraphicFilename2 = "data/player2.png";
+	const char* const kPlayarGraphicFilename3 = "data/player3.png";
+	const char* const kPlayarGraphicFilename4 = "data/player4.png";
+	const char* const kPlayarGraphicFilename5 = "data/player5.png";
+	const char* const kPlayarGraphicFilename6 = "data/player6.png";
+	const char* const kPlayarGraphicFilename7 = "data/player7.png";
+
+
+
 	const char* const kExplosionGraphicFilename = "data/Explosion.png";
 	const char* const kDoorGraphicFilename = "data/door.png";
 
@@ -144,7 +153,7 @@ namespace
 	int background = true;
 	// 表示する文字
 	const char* const kInductionText1 = "Bボタン→リトライ！";
-	const char* const kInductionText2 = "STARTボタン→タイトル！";
+	//const char* const kInductionText2 = "STARTボタン→タイトル！";
 	const char* const kInductionHeartText = "をすべて取れ！\n 　　宝箱が開くぞ！！";
 	// 文字色
 	const int kInductionFontColor0 = GetColor(255, 255, 255);
@@ -166,12 +175,16 @@ Field::Field() :
 	KeySHandle(),
 	attackSHandle(),
 	BGMHandle(),
+	ExplosionSHandle(),
 	background0(),
 	background1(),
 	background2(),
 	background3(),
 	background4(),
-	background5()
+	background5(),
+	Volume(),
+	PlayerNumber()
+
 {
 	for (auto& playerHandle : m_hPlayerGraphic)
 	{
@@ -186,16 +199,26 @@ Field::Field() :
 		doorHandle = -1;
 	}
 	HeartCount = 0;
-	TreasureCount = 0;			
+	TreasureCount = 0;
+	background = true;
 }
 
 Field::~Field()
 {
+		
 	
 }
 
 void Field::init()
 {
+	if (gameOver.CurrentStageNumber == 2)
+	{
+		StageNumber = 2;
+	}
+	else if (gameOver.CurrentStageNumber == 3)
+	{
+		StageNumber = 3;
+	}
 	// ステージ切り替え
 	for (int y = 0; y < kFieldY; y++)
 	{
@@ -217,12 +240,49 @@ void Field::init()
 			{
 				m_field[y][x] = m_field4[y][x];
 			}
+
+			
 		}
 	}
 	// プレイヤー
-	LoadDivGraph(kPlayarGraphicFilename, Player::kPlayerGraphicDivNum,
-		Player::kPlayerGraphicDivX, Player::kPlayerGraphicDivY,
-		Player::kPlayerGraphicSizeX, Player::kPlayerGraphicSizeY, m_hPlayerGraphic);
+	
+	PlayerNumber = 3;
+	if (PlayerNumber == 2)
+	{
+		LoadDivGraph(kPlayarGraphicFilename2, Player::kPlayerGraphicDivNum,
+			Player::kPlayerGraphicDivX, Player::kPlayerGraphicDivY,
+			Player::kPlayerGraphicSizeX, Player::kPlayerGraphicSizeY, m_hPlayerGraphic);
+	}
+	if (PlayerNumber == 3)
+	{
+		LoadDivGraph(kPlayarGraphicFilename3, Player::kPlayerGraphicDivNum,
+			Player::kPlayerGraphicDivX, Player::kPlayerGraphicDivY,
+			Player::kPlayerGraphicSizeX, Player::kPlayerGraphicSizeY, m_hPlayerGraphic);
+	}
+	if (PlayerNumber == 4)
+	{
+		LoadDivGraph(kPlayarGraphicFilename4, Player::kPlayerGraphicDivNum,
+			Player::kPlayerGraphicDivX, Player::kPlayerGraphicDivY,
+			Player::kPlayerGraphicSizeX, Player::kPlayerGraphicSizeY, m_hPlayerGraphic);
+	}
+	if (PlayerNumber == 5)
+	{
+		LoadDivGraph(kPlayarGraphicFilename5, Player::kPlayerGraphicDivNum,
+			Player::kPlayerGraphicDivX, Player::kPlayerGraphicDivY,
+			Player::kPlayerGraphicSizeX, Player::kPlayerGraphicSizeY, m_hPlayerGraphic);
+	}
+	if (PlayerNumber == 6)
+	{
+		LoadDivGraph(kPlayarGraphicFilename6, Player::kPlayerGraphicDivNum,
+			Player::kPlayerGraphicDivX, Player::kPlayerGraphicDivY,
+			Player::kPlayerGraphicSizeX, Player::kPlayerGraphicSizeY, m_hPlayerGraphic);
+	}
+	if (PlayerNumber == 7)
+	{
+		LoadDivGraph(kPlayarGraphicFilename7, Player::kPlayerGraphicDivNum,
+			Player::kPlayerGraphicDivX, Player::kPlayerGraphicDivY,
+			Player::kPlayerGraphicSizeX, Player::kPlayerGraphicSizeY, m_hPlayerGraphic);
+	}
 
 	for (int i = 0; i < Player::kPlayerGraphicDivNum; i++)
 	{
@@ -252,7 +312,7 @@ void Field::init()
 
 	// 鍵が存在している
 	Key = true;
-
+	
 	// 敵
 	if (StageNumber == 1 || StageNumber == 4)
 	{
@@ -296,7 +356,7 @@ void Field::init()
 	if (background == true)
 	{
 		int i = GetRand(4);
-		printfDx("%d", i);
+		//printfDx("%d", i);
 		if (i == 0)
 		{
 			background0 = background1;
@@ -331,7 +391,7 @@ void Field::end()
 
 	for (auto& handle : m_hExplosionGraphic)
 	{
-		DeleteGraph(m_hExplosionGraphic[8]);
+		DeleteGraph(m_hExplosionGraphic[7]);
 	}
 
 	for (auto& handle : m_hDoorGraphic)
@@ -342,6 +402,7 @@ void Field::end()
 
 SceneBase* Field::update()
 {
+	
 	if (isFading())
 	{
 		bool isOut = isFadingOut();
@@ -361,6 +422,7 @@ SceneBase* Field::update()
 		// ①
 		if (CheckHitKey(KEY_INPUT_1))
 		{
+			DeleteSoundMem(BGMHandle);
 			// フェードアウト開始
 			startFadeOut();
 			return(new Field);
@@ -368,6 +430,7 @@ SceneBase* Field::update()
 		// ②
 		if (CheckHitKey(KEY_INPUT_2))
 		{
+			DeleteSoundMem(BGMHandle);
 			StageNumber = 2;
 			init();// 次のステージへ！！
 			
@@ -375,22 +438,26 @@ SceneBase* Field::update()
 		// ③
 		if (CheckHitKey(KEY_INPUT_3))
 		{
+			DeleteSoundMem(BGMHandle);
 			StageNumber = 3;
 			init(); // 次のステージへ！！
 		}
 		if (CheckHitKey(KEY_INPUT_4))
 		{
+			DeleteSoundMem(BGMHandle);
 			return(new GameClear);
 		}
 	}
 #else
 	
 #endif
-	
-	if (padState & PAD_INPUT_2)
+	if (player.m_ExplosionAnimeNo == 0)
 	{
-		DeleteSoundMem(BGMHandle);
-		init();
+		if (padState & PAD_INPUT_2)
+		{
+			DeleteSoundMem(BGMHandle);
+			init();
+		}
 	}
 	if (padState & PAD_INPUT_8)
 	{
@@ -541,13 +608,22 @@ SceneBase* Field::update()
 
 	mEnemy2.Update();
 	
-	/*printfDx("  %d", player.m_PlayerAnimeNo);
-	printfDx("  %d", player.m_ExplosionAnimeNo);*/
+	/*printfDx("  %d", player.m_PlayerAnimeNo);*/
+	//printfDx("  %d", player.m_ExplosionAnimeNo);
 
+	gameOver.CurrentStageNumber = 0;
 	if (player.m_ExplosionAnimeNo == 7)
 	{
 		InitSoundMem();
-
+		if (StageNumber == 2)
+		{
+			gameOver.CurrentStageNumber = 2;
+		}
+		if (StageNumber == 3)
+		{
+			gameOver.CurrentStageNumber = 3;
+		}
+		player.m_ExplosionAnimeNo = 0;
 		return(new GameOver);
 	}
 	
@@ -603,7 +679,7 @@ SceneBase* Field::update()
 		if (door.OpenCount == 0)
 		{
 			door.OpenDoor = false;
-			Key == false;
+			Key = false;
 		}
 	}
 	// 扉に当たった時
@@ -637,6 +713,7 @@ SceneBase* Field::update()
 							}
 							else if (StageNumber == 4)
 							{
+								StageNumber = 1;
 								return(new GameClear);
 							}
 							init(); // 次のステージへ！！！！！！
@@ -848,7 +925,6 @@ void Field::draw()
 	int kTreasureOpenGraphic = LoadGraph("data/TreasureOpen.png");
 	int kTreasureOpenEmptyGraphic = LoadGraph("data/TreasureOpenEmpty.png");
 
-	
 
 	DrawGraph(0, 0, background0, true);
 
@@ -927,17 +1003,25 @@ void Field::draw()
 
 	SetFontSize(46);
 	// テキスト表示
-	DrawString(1100 + 2, 540 + 2, kInductionText1, kInductionFontColor0);
-	DrawString(1100 + 2, 700 + 2, kInductionText2, kInductionFontColor0);
+	DrawString(1100 + 2, 640 + 2, kInductionText1, kInductionFontColor0);
+	//DrawString(1100 + 2, 700 + 2, kInductionText2, kInductionFontColor0);
 
-	DrawString(1100, 540, kInductionText1, kInductionFontColor1);
-	DrawString(1100, 700, kInductionText2, kInductionFontColor2);
+	DrawString(1100, 640, kInductionText1, kInductionFontColor1);
+	//DrawString(1100, 700, kInductionText2, kInductionFontColor2);
 	
 	DrawExtendGraph(1100, 240, 1100 + kSize, 240 + kSize, kHeartGraphic, TRUE);
 
 	DrawString(1100 + kSize + 2, 240 + 2, kInductionHeartText, kInductionFontColor0);
 	DrawString(1100 + kSize, 240, kInductionHeartText, kInductionFontColor3);
 
-
+	//printfDx("\n\n%d", gameOver.CurrentStageNumber);
+	//printfDx("\n\n%d", StageNumber); 
+	//printfDx("\n\n%d", death);
 	SceneBase::drawFade();
+}
+
+void Field::setPlayerNo(float PNo)
+{
+	PlayerNumber = PNo;
+	
 }

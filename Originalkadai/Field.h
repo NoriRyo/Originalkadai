@@ -3,6 +3,7 @@
 #include "MovingEnemy.h"
 #include "Door.h"
 #include "SceneBase.h"
+#include "GameOver.h"
 class Field : public SceneBase
 {
 private:
@@ -28,8 +29,11 @@ public:
 
 	virtual void draw()override;
 
+	virtual void setPlayerNo(float PNo);
 	// ステージの数
 	int StageNumber = 1;
+	// プレイヤーナンバー
+	int PlayerNumber;
 
 private:
 	int background0;
@@ -95,5 +99,7 @@ private:
 	MovingEnemy mEnemy1;
 
 	MovingEnemy mEnemy2;
-	
+
+	GameOver gameOv;
+
 };

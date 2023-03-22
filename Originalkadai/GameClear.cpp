@@ -11,7 +11,7 @@ namespace
 	// 表示する文字列
 	const char* const kTitleText = "GAMECLEAR";
 	const char* const kAText = "A->TITLE";
-	const char* const kBText = "B->Return";
+	//const char* const kBText = "B->Return";
 	// 文字列点滅
 	constexpr int kTextDispFrame = 60;
 	constexpr int kTextHideFrame = 15;
@@ -26,25 +26,23 @@ namespace
 
 	int Fieldback = true;
 
+
 	constexpr int kParticleNum = 256;
 
 	Vec2 pos[kParticleNum];
 	Vec2 vec[kParticleNum];
-
-	
-
-	
 }
 void GameClear::init()
 {
+	Volume = 0;
 	m_textBlinkFrame = 0;
-	SetFontSize(32);
+	SetFontSize(180);
 	// サウンド
 	ClearBGMHandle = LoadSoundMem("sound/CLEARBGM.wav");
 	PlaySoundMem(ClearBGMHandle, DX_PLAYTYPE_LOOP);
-	
+
 	// フォント
-	fontHandle = CreateFontToHandle("Showcard Gothic", 64, -1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
+	fontHandle = CreateFontToHandle("Showcard Gothic", 180, -1, DX_FONTTYPE_ANTIALIASING_EDGE_8X8);
 
 	
 	SetAlwaysRunFlag(true);
@@ -80,6 +78,11 @@ void GameClear::end()
 
 SceneBase* GameClear::update()
 {
+	if (Volume <= 100)
+	{
+		Volume++;
+	}
+	ChangeVolumeSoundMem(255 * Volume / 100, ClearBGMHandle);
 	for (int i = 0; i < kParticleNum; i++)
 	{
 		pos[i] += vec[i];
@@ -133,12 +136,12 @@ SceneBase* GameClear::update()
 			// フェードアウト開始
 			startFadeOut();
 		}
-		if (padState & PAD_INPUT_2)
-		{
-			Fieldback = false;
-			// フェードアウト開始
-			startFadeOut();
-		}
+		//if (padState & PAD_INPUT_2)
+		//{
+		//	Fieldback = false;
+		//	// フェードアウト開始
+		//	startFadeOut();
+		//}
 	}
 
 	TextSinRate += 0.05f;
@@ -183,7 +186,6 @@ void GameClear::draw()
 	}
 	//元に戻す
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	
 
 
 	// 文字表示
@@ -191,25 +193,25 @@ void GameClear::draw()
 	byteCount = 0;	// 表示するバイト数に変換する
 
 	std::string temp = kTitleText;
-
+	SetFontSize(180);
 	int width = GetDrawStringWidth(kTitleText, static_cast<int>(strlen(kTitleText)));
-	charX = Game::kScreenWidth / 2 - width / 2;
+	charX = Game::kScreenWidth / 2 - width / 2 - 60;
 	charY = 160;
 
 	tempSin = TextSinRate;
 
 	//DrawString(Game::kScreenWidth / 2 - width / 2, 160, kTitleText, kTitleFontColor);
 
-	if (m_textBlinkFrame < 50)
+	SetFontSize(64);
+	//if (m_textBlinkFrame < 50)
 	{
-		//SetFontSize(46);
-		width = GetDrawStringWidth(kAText, static_cast<int>(strlen(kAText)));
-		DrawString(Game::kScreenWidth / 2 / 2 - width / 2, 580, kAText, kFontColorA);
+		int width = GetDrawStringWidth(kAText, static_cast<int>(strlen(kAText)));
+		DrawString(Game::kScreenWidth / 2 - width / 2, 580, kAText, kFontColorA);
 	}
-	else
+	//else
 	{
-		width = GetDrawStringWidth(kBText, static_cast<int>(strlen(kBText)));
-		DrawString(Game::kScreenWidth / 2 / 2 * 2.5, 580, kBText, kFontColorB);
+		//int width = GetDrawStringWidth(kBText, static_cast<int>(strlen(kBText)));
+		//DrawString(Game::kScreenWidth / 2 / 2 * 2.5, 580, kBText, kFontColorB);
 	}
 	while (1)
 	{
@@ -228,9 +230,7 @@ void GameClear::draw()
 		int moveY = sinf(tempSin) * 16.0f;
 		tempSin += DX_PI_F;
 
-
-		SetFontSize(64);
-		
+		SetFontSize(180);
 		DrawStringToHandle(charX + moveX + 2, charY + moveY + 2, temp.substr(byteCount, size).c_str(), 0xffffff, fontHandle);
 		DrawStringToHandle(charX + moveX, charY + moveY, temp.substr(byteCount, size).c_str(), 0xffff00, fontHandle);
 		charX += GetDrawStringWidthToHandle(temp.substr(byteCount, size).c_str(), size, fontHandle);
