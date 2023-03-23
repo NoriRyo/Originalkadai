@@ -4,7 +4,8 @@ namespace Game
 {
 #ifdef _DEBUG
 	// ウィンドーモード設定
-	constexpr bool kWindowMode = true;
+	//constexpr bool kWindowMode = true;
+	constexpr bool kWindowMode = false;
 #else
 	constexpr bool kWindowMode = false;
 #endif

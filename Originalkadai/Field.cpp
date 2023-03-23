@@ -246,7 +246,7 @@ void Field::init()
 	}
 	// プレイヤー
 	
-	PlayerNumber = 3;
+	PlayerNumber = 2;
 	if (PlayerNumber == 2)
 	{
 		LoadDivGraph(kPlayarGraphicFilename2, Player::kPlayerGraphicDivNum,
@@ -421,8 +421,8 @@ SceneBase* Field::update()
 	int padState = GetJoypadInputState(DX_INPUT_KEY_PAD1);
 
 #ifdef _DEBUG
-	printfDx("Debugk機能 キー入力\n");
-	printfDx("①->ステージ１　②->ステージ２  ③->ステージ３");
+	//printfDx("Debugk機能 キー入力\n");
+	//printfDx("①->ステージ１　②->ステージ２  ③->ステージ３");
 	if (!isFading())
 	{
 		// ①
